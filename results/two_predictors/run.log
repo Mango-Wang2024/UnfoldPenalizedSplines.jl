@@ -1,0 +1,10 @@
+2×7 DataFrame
+ Row │ event   channel  time     predictor  lambda    r2         sigma2
+     │ String  Int64    Float64  String     Float64   Float64    Float64
+─────┼───────────────────────────────────────────────────────────────────
+   1 │ Any           1      0.0  x1         0.561765  0.250853   0.14092
+   2 │ Any           1      0.0  x2         5.41944   0.0260027  0.14092
+Grid RMSE against the known additive surface: 0.07937975097818956
+Unfold version: 0.8.12
+Unfold source: /Users/wang/.julia/packages/Unfold/iqM7x/src/Unfold.jl
+Results saved to: /Users/wang/Documents/ChatGPT/Research Project/UnfoldPenalizedSplines.jl/results/two_predictors

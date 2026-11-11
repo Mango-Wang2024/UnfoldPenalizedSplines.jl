@@ -1,0 +1,16 @@
+channel,coefname,estimate,eventname,group,stderror,time
+1,(Intercept),0.16019612135425088,Any,nothing,nothing,0.0
+1,"pspl(x1,8).fixed",0.2899462897698729,Any,nothing,nothing,0.0
+1,"pspl(x1,8).penalized[1]",-0.2597612224203697,Any,nothing,nothing,0.0
+1,"pspl(x1,8).penalized[2]",-0.04474472714753211,Any,nothing,nothing,0.0
+1,"pspl(x1,8).penalized[3]",0.7850074894850405,Any,nothing,nothing,0.0
+1,"pspl(x1,8).penalized[4]",0.1354106633434992,Any,nothing,nothing,0.0
+1,"pspl(x1,8).penalized[5]",-0.6482312010068468,Any,nothing,nothing,0.0
+1,"pspl(x1,8).penalized[6]",-0.04118771105991881,Any,nothing,nothing,0.0
+1,"pspl(x2,8).fixed",0.15371302311605448,Any,nothing,nothing,0.0
+1,"pspl(x2,8).penalized[1]",-0.050346318773057355,Any,nothing,nothing,0.0
+1,"pspl(x2,8).penalized[2]",0.1477063688172968,Any,nothing,nothing,0.0
+1,"pspl(x2,8).penalized[3]",-0.004780943555664046,Any,nothing,nothing,0.0
+1,"pspl(x2,8).penalized[4]",0.10228396831288783,Any,nothing,nothing,0.0
+1,"pspl(x2,8).penalized[5]",0.021900445147609925,Any,nothing,nothing,0.0
+1,"pspl(x2,8).penalized[6]",0.20794379170093477,Any,nothing,nothing,0.0
