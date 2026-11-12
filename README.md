@@ -6,20 +6,37 @@ A standalone companion package for additive penalized splines in [Unfold.jl](htt
 
 The numerical code is reused from [Penalized-Splines](https://github.com/Mango-Wang2024/Penalized-Splines/tree/4d8d6e2159bd7a571f32de7b0561f8482f6cf5f4). The integration code connects these calculations to Unfold's formulas, fitting and prediction.
 
-| Group | File | Purpose |
-| --- | --- | --- |
-| **Reused numerical code** | [BSpline.jl](src/BSpline.jl) | Constructs the cubic B-spline basis and curvature penalty, including centering and scaling, to obtain $B,S$. |
-| | [ModelInputs.jl](src/ModelInputs.jl) | Transforms $B,S$ into unpenalized columns $X_0$ and penalized columns $Z$. |
-| | [SharedVariance.jl](src/SharedVariance.jl) | Gives each spline's penalized coefficients one shared variance in MixedModels. |
-| | [SplineFit.jl](src/SplineFit.jl) | Fits $y,X_f,Z_j$ through MixedModels REML and returns coefficients, smoothing strengths and variances. |
-| **Unfold integration** | [UnfoldPenalizedSplines.jl](src/UnfoldPenalizedSplines.jl) | Package entry point: loads the components and exposes the public functions. |
-| | [terms.jl](src/terms.jl) | Defines `pspl` and its StatsModels term; supplies spline columns through `modelcols` and retains settings for new-data prediction. |
-| | [fit.jl](src/fit.jl) | Defines `REMLAdapter` and `fit_reml!`; selects matrix blocks, calls the fitter and returns results in Unfold's format. |
-| **Example and data** | [two_predictors.jl](examples/two_predictors.jl) | Runs spline construction, fitting and prediction through Unfold using two predictors. |
-| | [training.csv](examples/data/training.csv) | The 200 observations used for fitting: predictor values, responses and the known surface. |
-| | [prediction_grid.csv](examples/data/prediction_grid.csv) | The 961 predictor combinations and known surface values used to evaluate predictions. |
-| **Saved results** | [RESULTS.md](results/two_predictors/RESULTS.md) | Reports the example's results and links to predictions, coefficients, smoothing estimates and the execution log. |
-| **Package setup** | [Project.toml](Project.toml) | Declares the package dependencies and compatible versions. |
+### 🟦 Reused numerical code
+
+| File | Purpose |
+| --- | --- |
+| [BSpline.jl](src/BSpline.jl) | Constructs and centers $B,S$. |
+| [ModelInputs.jl](src/ModelInputs.jl) | Prepares $X_0,Z$ from $B,S$. |
+| [SharedVariance.jl](src/SharedVariance.jl) | Sets one shared variance per spline. |
+| [SplineFit.jl](src/SplineFit.jl) | Estimates coefficients and smoothing strengths through REML. |
+
+### 🟩 Unfold integration
+
+| File | Purpose |
+| --- | --- |
+| [UnfoldPenalizedSplines.jl](src/UnfoldPenalizedSplines.jl) | Loads components and exports public functions. |
+| [terms.jl](src/terms.jl) | Defines `pspl` and supplies spline columns. |
+| [fit.jl](src/fit.jl) | Connects Unfold to our REML fitter. |
+
+### 🟨 Example and data
+
+| File | Purpose |
+| --- | --- |
+| [two_predictors.jl](examples/two_predictors.jl) | Runs the two-predictor example. |
+| [training.csv](examples/data/training.csv) | 200 observations for fitting. |
+| [prediction_grid.csv](examples/data/prediction_grid.csv) | 961 points for evaluating predictions. |
+
+### 🟪 Results and package setup
+
+| File | Purpose |
+| --- | --- |
+| [RESULTS.md](results/two_predictors/RESULTS.md) | Results and links to numerical outputs. |
+| [Project.toml](Project.toml) | Dependencies and compatible versions. |
 
 ## Workflow
 
