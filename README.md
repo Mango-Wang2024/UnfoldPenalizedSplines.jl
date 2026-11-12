@@ -2,6 +2,25 @@
 
 A standalone companion package for additive penalized splines in [Unfold.jl](https://github.com/unfoldtoolbox/Unfold.jl). Each predictor has its own cubic spline and REML-estimated smoothing strength. It depends on standard Unfold; no modified copy or fork is required.
 
+## Files
+
+The numerical code is reused from [Penalized-Splines](https://github.com/Mango-Wang2024/Penalized-Splines/tree/4d8d6e2159bd7a571f32de7b0561f8482f6cf5f4). The integration code connects these calculations to Unfold's formulas, fitting and prediction.
+
+| Group | File | Purpose |
+| --- | --- | --- |
+| **Reused numerical code** | [BSpline.jl](src/BSpline.jl) | Constructs the cubic B-spline basis and curvature penalty, including centering and scaling, to obtain $B,S$. |
+| | [ModelInputs.jl](src/ModelInputs.jl) | Transforms $B,S$ into unpenalized columns $X_0$ and penalized columns $Z$. |
+| | [SharedVariance.jl](src/SharedVariance.jl) | Gives each spline's penalized coefficients one shared variance in MixedModels. |
+| | [SplineFit.jl](src/SplineFit.jl) | Fits $y,X_f,Z_j$ through MixedModels REML and returns coefficients, smoothing strengths and variances. |
+| **Unfold integration** | [UnfoldPenalizedSplines.jl](src/UnfoldPenalizedSplines.jl) | Package entry point: loads the components and exposes the public functions. |
+| | [terms.jl](src/terms.jl) | Defines `pspl` and its StatsModels term; supplies spline columns through `modelcols` and retains settings for new-data prediction. |
+| | [fit.jl](src/fit.jl) | Defines `REMLAdapter` and `fit_reml!`; selects matrix blocks, calls the fitter and returns results in Unfold's format. |
+| **Example and data** | [two_predictors.jl](examples/two_predictors.jl) | Runs spline construction, fitting and prediction through Unfold using two predictors. |
+| | [training.csv](examples/data/training.csv) | The 200 observations used for fitting: predictor values, responses and the known surface. |
+| | [prediction_grid.csv](examples/data/prediction_grid.csv) | The 961 predictor combinations and known surface values used to evaluate predictions. |
+| **Saved results** | [RESULTS.md](results/two_predictors/RESULTS.md) | Reports the example's results and links to predictions, coefficients, smoothing estimates and the execution log. |
+| **Package setup** | [Project.toml](Project.toml) | Declares the package dependencies and compatible versions. |
+
 ## Workflow
 
 1. **Construct:** `pspl(x, k)` calls the BSplineKit-based construction and prepares the unpenalized columns $X_{0,j}$ and penalized columns $Z_j$ from $B_j,S_j$.
@@ -35,11 +54,7 @@ As in ordinary Unfold formulas, `0` on the left is a placeholder; the responses 
 
 The bundled example retains the original grid RMSE of **0.0794**. [Example results and output data](results/two_predictors/RESULTS.md) include this package's predictions, coefficients, smoothing estimates and execution log. Across the research project's five saved cases, the largest absolute difference from its R-reference grid predictions is **1.2 × 10⁻⁸**. Native Unfold prediction and coefficient reporting are used in these comparisons.
 
-## Source organization
-
-- [src/terms.jl](src/terms.jl): the formula term, training transformations and numerical spline columns.
-- [src/fit.jl](src/fit.jl): column selection, the custom solver callback and Unfold-compatible results.
-- `BSpline.jl`, `ModelInputs.jl`, `SplineFit.jl`, `SharedVariance.jl`: the existing construction, preparation and fitting calculations reused from [Penalized-Splines](https://github.com/Mango-Wang2024/Penalized-Splines/tree/4d8d6e2159bd7a571f32de7b0561f8482f6cf5f4).
+## Dependencies and sources
 
 The fitter retains the research project's pinned BSplineKit 0.19.3 and MixedModels 5.9.0 versions. R is used for the original reference comparisons, rather than as a runtime dependency.
 
