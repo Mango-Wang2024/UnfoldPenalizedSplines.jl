@@ -1,28 +1,57 @@
-struct REMLAdapter
+struct REMLAdapter{T,M<:AbstractMatrix{T}} <: AbstractMatrix{T}
+    X::M
     fixed::Vector{Int}
     random::Vector{Vector{Int}}
     components::Vector{String}
 end
 
-function REMLAdapter(form::StatsModels.FormulaTerm)
-    names = StatsModels.coefnames(form.rhs)
-    # Unfold labels expanded columns as "event : predictor column : lag".
-    base_names = form.rhs isa Unfold.TimeExpandedTerm ?
-        [split(name, " : ")[2] for name in names] : names
+function REMLAdapter(X::AbstractMatrix, forms::AbstractVector{<:StatsModels.FormulaTerm})
     random = Vector{Int}[]
     components = String[]
-    for t in spline_terms(form.rhs)
-        penalized = Set(StatsModels.coefnames(t)[2:end])
-        push!(random, findall(in(penalized), base_names))
-        push!(components, string(only(StatsModels.termvars(t))))
+    offset = 0
+    for form in forms
+        names = StatsModels.coefnames(form.rhs)
+        # Expanded column names are "event : predictor column : lag".
+        base_names = form.rhs isa Unfold.TimeExpandedTerm ?
+            [split(name, " : ")[2] for name in names] : names
+        for t in spline_terms(StatsModels.collect_matrix_terms(form.rhs))
+            penalized = Set(StatsModels.coefnames(t)[2:end])
+            push!(random, findall(in(penalized), base_names) .+ offset)
+            push!(components, string(only(StatsModels.termvars(t))))
+        end
+        offset += length(names)
     end
-    fixed = setdiff(collect(eachindex(names)), reduce(vcat, random; init=Int[]))
-    return REMLAdapter(fixed, random, components)
+    fixed = setdiff(collect(axes(X, 2)), reduce(vcat, random; init=Int[]))
+    return REMLAdapter(X, fixed, random, components)
 end
 
-function (adapter::REMLAdapter)(X, data::AbstractArray{T,N}) where {T,N}
-    # Ordinary event designs can continue to use Unfold's existing solver.
-    isempty(adapter.random) && return Unfold.solver_default(X, data; show_progress=false)
+# The term owns these methods. Unfold calls this hook after assembling its matrix.
+StatsModels.modelmatrix(::PenalizedSplineTerm, X::AbstractMatrix, forms) =
+    REMLAdapter(X, forms)
+StatsModels.modelmatrix(::PenalizedSplineTerm, X::REMLAdapter, forms) = X
+
+# Keep Unfold's normal dimension checks, row alignment and prediction operations.
+Base.size(adapter::REMLAdapter) = size(adapter.X)
+Base.getindex(adapter::REMLAdapter, indices...) = getindex(adapter.X, indices...)
+function Base.getindex(adapter::REMLAdapter, rows::AbstractVector, ::Colon)
+    return REMLAdapter(adapter.X[rows, :], adapter.fixed, adapter.random, adapter.components)
+end
+Base.Matrix(adapter::REMLAdapter) = Matrix(adapter.X)
+Base.Matrix{T}(adapter::REMLAdapter) where {T} = Matrix{T}(adapter.X)
+
+Unfold.predict(adapter::REMLAdapter, coefficients::AbstractMatrix) =
+    Unfold.predict(adapter.X, coefficients)
+Unfold.predict(adapter::REMLAdapter{Tx}, coefficients::AbstractArray{Tc,3}) where
+    {Tx<:Union{Missing,Number},Tc<:Union{Missing,Number}} =
+    Unfold.predict(adapter.X, coefficients)
+
+Unfold.solver_default(adapter::REMLAdapter, data::AbstractMatrix; kwargs...) =
+    solve_reml(adapter, data)
+Unfold.solver_default(adapter::REMLAdapter, data::AbstractArray{T,3}; kwargs...) where {T} =
+    solve_reml(adapter, data)
+
+function solve_reml(adapter::REMLAdapter, data::AbstractArray{T,N}) where {T,N}
+    X = adapter.X
     Xf = Matrix{Float64}(X[:, adapter.fixed])
     Zs = [Matrix{Float64}(X[:, columns]) for columns in adapter.random]
     channels = size(data, 1)
@@ -33,7 +62,7 @@ function (adapter::REMLAdapter)(X, data::AbstractArray{T,N}) where {T,N}
     for ch in 1:channels, t in 1:times
         y = N == 3 ? view(data, ch, t, :) : view(data, ch, :)
         fitted = SplineFit.fit_reml(y, Xf, Zs)
-        # Put b and tau back into Unfold's actual column order for native predict().
+        # Match Unfold's column order for native prediction and coefficient tables.
         combined = zeros(size(X, 2))
         combined[adapter.fixed] = fitted.b
         for (columns, tau) in zip(adapter.random, fitted.tau)
@@ -51,37 +80,15 @@ function (adapter::REMLAdapter)(X, data::AbstractArray{T,N}) where {T,N}
     return Unfold.LinearModelFit{Float64,N}(; estimate=coefficients, info)
 end
 
-"""
-    fit_reml!(uf, data)
-
-Fit a prepared Unfold model containing `pspl` terms. Each spline term has one
-shared variance and smoothing strength. Channels and epoched time points are
-fitted separately. Uses Unfold's existing `solver(X, data)` callback.
-"""
-function fit_reml!(uf::Unfold.UnfoldLinearModel, data::AbstractArray)
-    data = Unfold.check_data(typeof(uf), data)
-    adapters = IdDict(Unfold.modelmatrix(d) => REMLAdapter(d.formula)
-                      for d in Unfold.designmatrix(uf))
-    Unfold.fit!(uf, data; solver=(X, y) -> adapters[X](X, y))
-    return uf
-end
-
-function fit_reml!(uf::Unfold.UnfoldLinearModelContinuousTime, data::AbstractArray)
-    data = Unfold.check_data(typeof(uf), data)
-    fixed = Int[]
-    random = Vector{Int}[]
-    components = String[]
-    offset = 0
-    for d in Unfold.designmatrix(uf)
-        adapter = REMLAdapter(d.formula)
-        append!(fixed, adapter.fixed .+ offset)
-        append!(random, [columns .+ offset for columns in adapter.random])
-        append!(components, adapter.components)
-        offset += size(Unfold.modelmatrix(d), 2)
-    end
-    adapter = REMLAdapter(fixed, random, components)
-    Unfold.fit!(uf, data; solver=adapter)
-    return uf
+# feature-bychannel supplies one matrix per channel to the default solver.
+function Unfold.solver_default(adapters::AbstractVector{<:REMLAdapter},
+                               data::AbstractArray{T,3}; kwargs...) where {T}
+    results = [Unfold.solver_default(adapter, view(data, ch:ch, :, :); kwargs...)
+               for (ch, adapter) in enumerate(adapters)]
+    coefficients = cat((result.estimate for result in results)...; dims=1)
+    fits = vcat((result.info.fits for result in results)...)
+    info = (; method=:REML, components=first(adapters).components, fits)
+    return Unfold.LinearModelFit{Float64,3}(; estimate=coefficients, info)
 end
 
 """
@@ -94,7 +101,7 @@ lambda across its lag columns; `time` is missing in the returned table.
 function smoothing_parameters(uf::Unfold.UnfoldModel)
     info = Unfold.modelfit(uf).info
     blocks = info isa NamedTuple ? [info] : info
-    continuous = uf isa Unfold.UnfoldLinearModelContinuousTime
+    continuous = Unfold.SimpleTraits.istrait(Unfold.ContinuousTimeTrait{typeof(uf)})
     rows = NamedTuple[]
     for (event, block) in enumerate(blocks)
         block isa NamedTuple && block.method == :REML || continue

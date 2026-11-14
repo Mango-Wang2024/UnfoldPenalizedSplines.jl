@@ -1,6 +1,8 @@
 # UnfoldPenalizedSplines.jl
 
-A standalone companion package for additive penalized splines in [Unfold.jl](https://github.com/unfoldtoolbox/Unfold.jl). Each predictor has its own cubic spline and REML-estimated smoothing strength. It depends on standard Unfold; no modified copy or fork is required.
+A standalone companion package for additive penalized splines in [Unfold.jl](https://github.com/unfoldtoolbox/Unfold.jl). Each predictor has its own cubic spline and REML-estimated smoothing strength. The normal `fit(...)` call selects REML through multiple dispatch on `REMLAdapter`.
+
+[Project.toml](Project.toml) pins the [Unfold copy](https://github.com/Mango-Wang2024/Unfold.jl) containing the formula-aware `modelmatrix` connection used by this package.
 
 ## Files
 
@@ -21,7 +23,7 @@ The numerical code is reused from [Penalized-Splines](https://github.com/Mango-W
 | --- | --- |
 | [UnfoldPenalizedSplines.jl](src/UnfoldPenalizedSplines.jl) | Loads components and exports public functions. |
 | [terms.jl](src/terms.jl) | Defines `pspl` and supplies spline columns. |
-| [fit.jl](src/fit.jl) | Connects Unfold to our REML fitter. |
+| [fit.jl](src/fit.jl) | Defines the matrix adapter and REML `solver_default` methods. |
 
 ### 🟨 Example and data
 
@@ -40,10 +42,11 @@ The numerical code is reused from [Penalized-Splines](https://github.com/Mango-W
 
 ## Workflow
 
-1. **Construct:** `pspl(x, k)` calls the BSplineKit-based construction and prepares the unpenalized columns $X_{0,j}$ and penalized columns $Z_j$ from $B_j,S_j$.
+1. **Construct:** `pspl(x, k)` declares a spline term. Its `modelcols` method constructs $B_j,S_j$ and prepares the unpenalized columns $X_{0,j}$ and penalized columns $Z_j$.
 2. **Assemble:** Unfold combines these columns with ordinary predictors and, for continuous data, applies its existing time expansion.
-3. **Fit:** `fit_reml!` supplies a solver adapter through Unfold's existing `solver(X, data)` interface. The adapter selects $X_f,Z_1,\ldots,Z_m$ and calls the existing MixedModels REML fitter.
-4. **Return:** coefficients are placed in Unfold's column order, so native `predict` and `coeftable` work. `smoothing_parameters` returns each fitted $\lambda_j=\sigma^2/r_j^2$ and its variance estimates.
+3. **Attach:** `modelmatrix` returns a `REMLAdapter` containing the assembled matrix and its fixed/penalized column groups. The adapter supports the matrix operations used by Unfold.
+4. **Fit:** Unfold calls `solver_default`. Its `REMLAdapter` methods select $X_f,Z_1,\ldots,Z_m$ and use the existing MixedModels REML fitter.
+5. **Return:** coefficients are stored in Unfold's column order for native `predict` and `coeftable`. `smoothing_parameters` returns each fitted $\lambda_j=\sigma^2/r_j^2$ and its variance estimates.
 
 Training knots, centering and coefficient transformations are retained for new-data prediction. The number of predictors is determined by the formula. Supplied full knot vectors can be used with `pspl(:x, k; knots=...)` in programmatically constructed formulas.
 
@@ -58,12 +61,11 @@ julia --project=. -e 'using Pkg; Pkg.instantiate()'
 julia --project=. examples/two_predictors.jl
 ```
 
-The example uses the research project's 200 saved observations and 961 prediction points for $f(x_1,x_2)=\sin(1.7x_1)+0.15x_1+0.5\cos(1.2x_2)$. It builds an Unfold model without fitting, then calls:
+The example uses the research project's 200 saved observations and 961 prediction points for $f(x_1,x_2)=\sin(1.7x_1)+0.15x_1+0.5\cos(1.2x_2)$. Construction and fitting use one call:
 
 ```julia
 formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))
-model = fit(UnfoldModel, formula, events, data, [0.0]; fit=false)
-fit_reml!(model, data)
+model = fit(UnfoldModel, formula, events, data, [0.0])
 smoothing_parameters(model)
 ```
 
@@ -73,6 +75,6 @@ The bundled example retains the original grid RMSE of **0.0794**. [Example resul
 
 ## Dependencies and sources
 
-The fitter retains the research project's pinned BSplineKit 0.19.3 and MixedModels 5.9.0 versions. R is used for the original reference comparisons, rather than as a runtime dependency.
+The fitter uses the research project's pinned BSplineKit 0.19.3 and MixedModels 5.9.0 versions. R supplies the saved reference comparisons. The Unfold change is confined to the formula-aware `modelmatrix` connection in `src/designmatrix.jl`. The implementation also follows the matrix handling on the upstream [feature-bychannel](https://github.com/unfoldtoolbox/Unfold.jl/tree/feature-bychannel) and [feature-denseDesign](https://github.com/unfoldtoolbox/Unfold.jl/tree/feature-denseDesign) branches.
 
 Sources: [StatsModels formula extensions](https://juliastats.org/StatsModels.jl/stable/internals/#Extending-@formula-syntax), [Unfold spline terms](https://github.com/unfoldtoolbox/Unfold.jl/blob/ce1c795faf5968dc623e015fb25af03954e61047/ext/UnfoldBSplineKitExt/splinepredictors.jl), [Unfold custom solver interface](https://github.com/unfoldtoolbox/Unfold.jl/blob/ce1c795faf5968dc623e015fb25af03954e61047/src/fit.jl), and [mgcv smooth-to-random preparation](https://stat.ethz.ch/R-manual/R-devel/library/mgcv/html/smooth2random.html).

@@ -1,3 +1,10 @@
+[ Info: Missings in data - we remove any trial from data and designmatrix
+[ Info: Missings in data - we remove any trial from data and designmatrix
+
+  1 dependency had output during precompilation:
+┌ Unfold
+│  [Output was shown above]
+└
 2×7 DataFrame
  Row │ event   channel  time     predictor  lambda    r2         sigma2
      │ String  Int64    Float64  String     Float64   Float64    Float64
@@ -6,5 +13,5 @@
    2 │ Any           1      0.0  x2         5.41944   0.0260027  0.14092
 Grid RMSE against the known additive surface: 0.07937975097818956
 Unfold version: 0.8.12
-Unfold source: /Users/wang/.julia/packages/Unfold/iqM7x/src/Unfold.jl
+Unfold source: /private/tmp/unfold-integration-depot/packages/Unfold/J4GNY/src/Unfold.jl
 Results saved to: /Users/wang/Documents/ChatGPT/Research Project/UnfoldPenalizedSplines.jl/results/two_predictors

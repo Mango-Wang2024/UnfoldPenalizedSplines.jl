@@ -1,0 +1,18 @@
+[ Info: Missings in data - we remove any trial from data and designmatrix
+[ Info: Missings in data - we remove any trial from data and designmatrix
+
+  1 dependency had output during precompilation:
+┌ Unfold
+│  [Output was shown above]
+└
+uniform_k8: max grid difference from R = 1.1907093699914384e-8
+default_k8: max grid difference from R = 1.1904947694318935e-8
+uneven_k10: max grid difference from R = 3.169970952399126e-9
+duplicates_k6: max grid difference from R = 6.556000187174504e-10
+small_k5: max grid difference from R = 8.364469741839464e-9
+Test Summary:                                | Pass  Total   Time
+Existing five reference cases through Unfold |   35     35  12.4s
+Test Summary:                              | Pass  Total  Time
+Formula term and variable predictor counts |    9      9  4.7s
+Test Summary:                                        | Pass  Total  Time
+Time-expanded fitting and original Unfold regression |    8      8  4.4s

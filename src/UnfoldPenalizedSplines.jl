@@ -13,6 +13,6 @@ using .ModelInputs: prepare_inputs
 include("terms.jl")
 include("fit.jl")
 
-export pspl, fit_reml!, smoothing_parameters
+export pspl, smoothing_parameters
 
 end

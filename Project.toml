@@ -13,6 +13,9 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsModels = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
 Unfold = "181c99d8-e21b-4ff3-b70b-c233eddec679"
 
+[sources]
+Unfold = {url = "https://github.com/Mango-Wang2024/Unfold.jl.git", rev = "55a451d6e44257c70d99e694db6205499535b3cc"}
+
 [compat]
 BSplineKit = "=0.19.3"
 DataFrames = "1"
