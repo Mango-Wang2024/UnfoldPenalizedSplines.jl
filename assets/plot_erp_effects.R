@@ -1,7 +1,10 @@
 args <- commandArgs(trailingOnly = TRUE)
 curves <- read.csv(file.path(args[1], "curves.csv"))
 levels <- sort(unique(curves$x1))
-palette <- colorRampPalette(c("#8C2D04", "#BD8B23", "#F4F5B2", "#BDE6C5", "#4CB4CF", "#08306B"))(length(levels))
+color_map <- colorRampPalette(c("#7F2704", "#A35D13", "#BEA447", "#DBD99A",
+                               "#C2E6C9", "#6EC9CE", "#359FC2", "#2067AA",
+                               "#083698"), space = "Lab")
+palette <- color_map(length(levels))
 limits <- range(curves$yhat)
 limits <- limits + c(-0.4, 0.5)
 png(args[2], width = 1800, height = 780, res = 150, pointsize = 13)
@@ -32,8 +35,9 @@ for (panel in seq_along(methods)) {
 par(mar = c(4.4, 0.3, 3.2, 2.7), mgp = c(2, 0.6, 0), tcl = -0.25, las = 1)
 plot(NA, xlim = c(0, 1), ylim = range(levels), axes = FALSE,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i")
-edges <- seq(min(levels), max(levels), length.out = length(levels) + 1)
-rect(0, head(edges, -1), 1, tail(edges, -1), col = palette, border = NA)
+gradient <- color_map(1024)
+edges <- seq(min(levels), max(levels), length.out = length(gradient) + 1)
+rect(0, head(edges, -1), 1, tail(edges, -1), col = gradient, border = NA)
 axis(4, at = c(-2, 0, 2))
 box(lwd = 0.8)
 mtext(expression(x[1]), side = 3, line = 0.8, cex = 1.05)
