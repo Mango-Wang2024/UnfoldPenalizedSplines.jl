@@ -1,14 +1,14 @@
 args <- commandArgs(trailingOnly = TRUE)
 curves <- read.csv(file.path(args[1], "curves.csv"))
 levels <- sort(unique(curves$x1))
-color_map <- colorRampPalette(c("#7F2704", "#A35D13", "#BEA447", "#DBD99A",
-                               "#C2E6C9", "#6EC9CE", "#359FC2", "#2067AA",
-                               "#083698"), space = "Lab")
+color_map <- colorRampPalette(c("#7E1B02", "#9D5A17", "#B78C32", "#CFCA73",
+                               "#BFEAC3", "#77D1D7", "#399DC6", "#236BB1",
+                               "#063499"))
 palette <- color_map(length(levels))
 limits <- range(curves$yhat)
 limits <- limits + c(-0.4, 0.5)
 png(args[2], width = 1800, height = 780, res = 150, pointsize = 13)
-layout(matrix(1:3, nrow = 1), widths = c(1, 1, 0.14))
+layout(matrix(1:3, nrow = 1), widths = c(1, 1, 0.105))
 
 methods <- c("Unpenalized", "REML")
 titles <- c("(a) Fixed basis, unpenalized", "(b) REML-selected smoothing")
@@ -20,8 +20,6 @@ for (panel in seq_along(methods)) {
        axes = FALSE, xaxs = "i")
   axis(1, at = seq(-0.1, 0.5, by = 0.1))
   axis(2, at = pretty(limits, n = 5))
-  abline(v = 0, lty = 3, col = "grey75", lwd = 0.7)
-  abline(h = 0, col = "grey90", lwd = 0.7)
   for (j in seq_along(levels)) {
     line <- curves[curves$method == methods[panel] & curves$x1 == levels[j], ]
     line <- line[order(line$time), ]
