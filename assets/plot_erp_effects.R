@@ -7,8 +7,8 @@ color_map <- colorRampPalette(c("#7E1B02", "#9D5A17", "#B78C32", "#CFCA73",
 palette <- color_map(length(levels))
 limits <- range(curves$yhat)
 limits <- limits + c(-0.4, 0.5)
-png(args[2], width = 1800, height = 780, res = 150, pointsize = 13)
-layout(matrix(1:3, nrow = 1), widths = c(1, 1, 0.105))
+png(args[2], width = 1800, height = 780, res = 150, pointsize = 16)
+layout(matrix(1:3, nrow = 1), widths = c(1, 1, 0.12))
 
 methods <- c("Unpenalized", "REML")
 titles <- c("(a) Fixed basis, unpenalized", "(b) REML-selected smoothing")
