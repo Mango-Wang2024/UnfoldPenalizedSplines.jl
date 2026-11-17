@@ -30,6 +30,8 @@ The numerical code is reused from [Penalized-Splines](https://github.com/Mango-W
 | File | Purpose |
 | --- | --- |
 | [two_predictors.jl](examples/two_predictors.jl) | Runs the two-predictor example. |
+| [erp_effects.jl](examples/erp_effects.jl) | Compares unpenalized and REML-smoothed ERP effects. |
+| [plot_erp_effects.R](assets/plot_erp_effects.R) | Draws the two-panel ERP figure. |
 | [training.csv](examples/data/training.csv) | 200 observations for fitting. |
 | [prediction_grid.csv](examples/data/prediction_grid.csv) | 961 points for evaluating predictions. |
 
@@ -72,6 +74,14 @@ smoothing_parameters(model)
 As in ordinary Unfold formulas, `0` on the left is a placeholder; the responses are supplied in `data`.
 
 The bundled example retains the original grid RMSE of **0.0794**. [Example results and output data](results/two_predictors/RESULTS.md) include this package's predictions, coefficients, smoothing estimates and execution log. Across the research project's five saved cases, the largest absolute difference from its R-reference grid predictions is **1.2 × 10⁻⁸**. Native Unfold prediction and coefficient reporting are used in these comparisons.
+
+## Marginal effects over time
+
+[ERP example and results](results/erp_effects/RESULTS.md): fit simulated continuous EEG from 200 events, then use Unfold's `effects` to predict event-related curves at different $x_1$ values, holding $x_2=0$. Both fits keep **$k=8$ per predictor**; one is unpenalized, while the other estimates smoothing through REML. This selects the smoothing strength, not the number of basis functions.
+
+<img src="assets/erp_effects.png" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
+
+Run `julia --project=. examples/erp_effects.jl` to reproduce the data, fits and figure. Rendering uses base R through `Rscript`.
 
 ## Dependencies and sources
 
