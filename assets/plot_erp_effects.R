@@ -5,8 +5,7 @@ color_map <- colorRampPalette(c("#7E1B02", "#9D5A17", "#B78C32", "#CFCA73",
                                "#BFEAC3", "#77D1D7", "#399DC6", "#236BB1",
                                "#063499"))
 palette <- color_map(length(levels))
-limits <- range(curves$yhat)
-limits <- limits + c(-0.4, 0.5)
+limits <- c(-6.5, 10.5)
 png(args[2], width = 1800, height = 780, res = 150, pointsize = 16)
 layout(matrix(1:3, nrow = 1), widths = c(1, 1, 0.12))
 
@@ -16,10 +15,11 @@ for (panel in seq_along(methods)) {
   par(mar = c(4.4, 4.5, 3.2, 0.8), mgp = c(2.7, 0.65, 0), tcl = -0.25,
       family = "sans", las = 1, bty = "l")
   plot(NA, xlim = c(-0.1, 0.5), ylim = limits, xlab = "Time [s]",
-       ylab = if (panel == 1) "Predicted voltage [\u00b5V]" else "",
+       ylab = if (panel == 1) "Voltage [\u00b5V]" else "",
        axes = FALSE, xaxs = "i")
-  axis(1, at = seq(-0.1, 0.5, by = 0.1))
-  axis(2, at = pretty(limits, n = 5))
+  axis(1, at = c(0, 0.2, 0.4), labels = c("0.0", "0.2", "0.4"))
+  voltage_ticks <- seq(-3, 9, by = 3)
+  axis(2, at = voltage_ticks, labels = formatC(voltage_ticks, format = "f", digits = 1))
   for (j in seq_along(levels)) {
     line <- curves[curves$method == methods[panel] & curves$x1 == levels[j], ]
     line <- line[order(line$time), ]
