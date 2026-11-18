@@ -21,6 +21,8 @@ REML selected $\lambda_1=0.64298$ and $\lambda_2=69.81969$. Each value is shared
 
 The example shuffles the original **200 predictor pairs** and passes them to UnfoldSim. It generates a continuous EEG recording with overlapping responses at **100 Hz**, event intervals of **0.2–0.5 s**, and Gaussian noise with standard deviation **0.8 µV** (seed 2026). Unfold fits the response from **−0.1 to 0.5 s**.
 
+The original two-predictor example had **one response value per predictor pair**. Here, each pair describes an event with a start sample (`latency`). UnfoldSim places each event’s waveform at its start and adds the voltages where waveforms overlap. The last event starts at sample **7,181**, and the recording extends another **51 samples** to cover its response. The fit therefore uses **200 event rows** and a single EEG channel with **7,232 voltage samples**.
+
 UnfoldSim supplies the P100, N170, and P300 waveforms. In our example, the P300 amplitude is $5+4[\sin(1.7x_1)+0.15x_1]+0.5\cos(1.2x_2)$. [Simulation code](../../examples/erp_effects.jl)
 
 `Continuous recording + events → Unfold time expansion → fit → effects → predicted ERP curves`
@@ -36,8 +38,8 @@ This is the same figure as in the [penalized spline tutorial](https://mango-wang
 | [curves.csv](curves.csv) | Both fits' plotted predictions and known responses. |
 | [summary.csv](summary.csv) | RMSE values. |
 | [smoothing_parameters.csv](smoothing_parameters.csv) | REML smoothing and variance estimates. |
-| [events.csv](events.csv) | Event onsets and predictor values. |
-| [recording.csv](recording.csv) | Clean and noisy simulated recording. |
+| [events.csv](events.csv) | 200 events with predictor values and onset samples. |
+| [recording.csv](recording.csv) | 7,232 time samples with clean and noisy voltage values. |
 | [run.log](run.log) | Execution output. |
 
 To redraw the saved predictions, run these commands from the repository root:
