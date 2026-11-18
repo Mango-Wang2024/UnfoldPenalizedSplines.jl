@@ -1,38 +1,16 @@
-WARNING: Imported binding OpenSpecFun_jll.libopenspecfun was undeclared at import time during import to SpecialFunctions.
-WARNING: Imported binding CodeTracking.@which was undeclared at import time during import to Repr.
-WARNING: Imported binding BFloat16s.BFloat16 was undeclared at import time during import to NNlib.
-WARNING: Imported binding Lz4_jll.liblz4 was undeclared at import time during import to CodecLz4.
-WARNING: Imported binding NLopt_jll.libnlopt was undeclared at import time during import to NLopt.
 Fitting fixed-basis unpenalized model...
 Fitting REML-smoothed model...
-Warning messages:
-1: In grSoftVersion() :
-  unable to load shared object '/Library/Frameworks/R.framework/Resources/modules//R_X11.so':
-  dlopen(/Library/Frameworks/R.framework/Resources/modules//R_X11.so, 0x0006): Library not loaded: /opt/X11/lib/libSM.6.dylib
-  Referenced from: <12ACBF54-73E1-3691-8F9A-0BB7076A39D5> /Library/Frameworks/R.framework/Versions/4.6/Resources/modules/R_X11.so
-  Reason: tried: '/opt/X11/lib/libSM.6.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/X11/lib/libSM.6.dylib' (no such file), '/opt/X11/lib/libSM.6.dylib' (no such file), '/Library/Frameworks/R.framework/Resources/lib/libSM.6.dylib' (no such file), '/Library/Java/JavaVirtualMachines/jdk-21.0.8+9/Contents/Home/lib/server/libSM.6.dylib' (no such file)
-2: In cairoVersion() :
-  unable to load shared object '/Library/Frameworks/R.framework/Resources/library/grDevices/libs//cairo.so':
-  dlopen(/Library/Frameworks/R.framework/Resources/library/grDevices/libs//cairo.so, 0x0006): Library not loaded: /opt/X11/lib/libXrender.1.dylib
-  Referenced from: <6832203D-652F-3360-B263-24468A45CF1B> /Library/Frameworks/R.framework/Versions/4.6/Resources/library/grDevices/libs/cairo.so
-  Reason: tried: '/opt/X11/lib/libXrender.1.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/X11/lib/libXrender.1.dylib' (no such file), '/opt/X11/lib/libXrender.1.dylib' (no such file), '/Library/Frameworks/R.framework/Resources/lib/libXrender.1.dylib' (no such file), '/Library/Java/JavaVirtualMachines/jdk-21.0.8+9/Contents/Home/lib/server/libXrender.1.dylib' (no such file)
-3: In png(args[2], width = 1800, height = 780, res = 150, type = "cairo",  :
-  failed to load cairo DLL
-null device
-          1
+Font: TeX Gyre Heros Makie, regular, 12 units per 600-unit image width
+Reference spine/tick width: 1 unit per 600-unit image width
 2×2 DataFrame
  Row │ method       rmse
      │ String       Float64
 ─────┼───────────────────────
-   1 │ Unpenalized  0.208246
-   2 │ REML         0.152292
+   1 │ Unpenalized  0.223742
+   2 │ REML         0.163253
 2×7 DataFrame
  Row │ event     channel  time     predictor  lambda     r2          sigma2
      │ String    Int64    Missing  String     Float64    Float64     Float64
 ─────┼────────────────────────────────────────────────────────────────────────
-   1 │ combined        1  missing  x1          0.723297  0.884518    0.639769
-   2 │ combined        1  missing  x2         93.3388    0.00685426  0.639769
-
-Figure rendering rerun successfully after removing the unavailable Cairo backend:
-Rscript assets/plot_erp_effects.R results/erp_effects assets/erp_effects.png
-Exit status: 0
+   1 │ combined        1  missing  x1          0.642985  0.984998    0.633338
+   2 │ combined        1  missing  x2         69.8197    0.00907106  0.633338

@@ -1,13 +1,15 @@
-using Unfold, UnfoldPenalizedSplines, DataFrames, DelimitedFiles, Random, Statistics
+using Unfold, UnfoldPenalizedSplines, DataFrames, DelimitedFiles, Random, Serialization, Statistics
+import UnfoldSim
 
-# Add a time course to the original two-predictor example. Values are simulated µV.
-function known_erp(t, x1, x2)
-    p1 = 5.5 * exp(-0.5 * ((t - 0.085) / 0.016)^2)
-    n1 = -6.0 * exp(-0.5 * ((t - 0.155) / 0.025)^2)
-    amplitude = 5.0 + 4.0 * (sin(1.7x1) + 0.15x1) + 0.5cos(1.2x2)
-    p3 = amplitude * exp(-0.5 * ((t - 0.285) / 0.055)^2)
-    return p1 + n1 + p3
+# Pass the original predictor pairs through UnfoldSim's event design interface.
+struct ERPDesign <: UnfoldSim.AbstractDesign
+    events::DataFrame
 end
+Base.size(design::ERPDesign) = (nrow(design.events),)
+UnfoldSim.generate_events(::AbstractRNG, design::ERPDesign) = copy(design.events)
+
+p3_amplitude(x1, x2) = 5.0 + 4.0 * (sin(1.7x1) + 0.15x1) + 0.5cos(1.2x2)
+at_lag(wave, lag) = get(wave, lag + 1, 0.0)
 
 function save_table(file, table)
     open(file, "w") do io
@@ -19,15 +21,31 @@ end
 values, header = readdlm(joinpath(@__DIR__, "data", "training.csv"), ',', Float64; header=true)
 original = DataFrame(values, Symbol.(vec(header)))
 rng = MersenneTwister(2026)
-events = original[randperm(rng, nrow(original)), [:x1, :x2]]
-events.latency = 50 .+ cumsum(rand(rng, 20:50, nrow(events)))
+predictors = original[randperm(rng, nrow(original)), [:x1, :x2]]
+predictors.p3_amplitude = p3_amplitude.(predictors.x1, predictors.x2)
 sfreq = 100
-lags = -10:50
-signal = zeros(last(events.latency) + last(lags) + 50)
-for event in eachrow(events), lag in lags
-    signal[event.latency + lag] += known_erp(lag / sfreq, event.x1, event.x2)
+p1 = UnfoldSim.p100(; sfreq)
+n1 = UnfoldSim.n170(; sfreq)
+p3 = UnfoldSim.p300(; sfreq)
+# Keep the recording long enough for the full response window after the last event.
+p3 = vcat(p3, zeros(51 - length(p3)))
+components = [
+    UnfoldSim.LinearModelComponent(; basis=p1, formula=@formula(0 ~ 1), β=[5.5]),
+    UnfoldSim.LinearModelComponent(; basis=n1, formula=@formula(0 ~ 1), β=[6.0]),
+    UnfoldSim.LinearModelComponent(; basis=p3, formula=@formula(0 ~ 0 + p3_amplitude), β=[1.0]),
+]
+design = ERPDesign(predictors)
+onset = UnfoldSim.UniformOnset(; offset=20, width=30)
+signal, _ = UnfoldSim.simulate(rng, design, components, onset)
+observed, events = UnfoldSim.simulate(rng, design, components, onset,
+                                      UnfoldSim.WhiteNoise(; noiselevel=0.8))
+select!(events, :x1, :x2, :latency)
+data = reshape(observed, 1, :)
+
+function known_erp(t, x1, x2)
+    lag = round(Int, t * sfreq)
+    return 5.5at_lag(p1, lag) + 6.0at_lag(n1, lag) + p3_amplitude(x1, x2) * at_lag(p3, lag)
 end
-data = reshape(signal + 0.8randn(rng, length(signal)), 1, :)
 
 # Both fits use exactly the same basis size, observations and time-expanded design.
 formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))
@@ -67,3 +85,15 @@ plot_script = joinpath(assets, "plot_erp_effects.jl")
 curves_file = joinpath(outdir, "curves.csv")
 figure = joinpath(assets, "erp_effects.png")
 run(`$(Base.julia_cmd()) --project=$assets $plot_script $curves_file $figure`)
+
+# Pass a folder to also render both demo panels for every slider setting.
+if !isempty(ARGS)
+    include("smoothing_fits.jl")
+    fits = smoothing_fits(smoothed, data)
+    mktemp() do path, io
+        serialize(io, fits)
+        close(io)
+        demo_script = joinpath(assets, "plot_smoothing_demo.jl")
+        run(`$(Base.julia_cmd()) --project=$assets $demo_script $path $(only(ARGS))`)
+    end
+end

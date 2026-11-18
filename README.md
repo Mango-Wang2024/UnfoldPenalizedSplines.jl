@@ -77,7 +77,7 @@ The bundled example retains the original grid RMSE of **0.0794**. [Example resul
 
 ## Marginal effects over time
 
-[ERP example and results](results/erp_effects/RESULTS.md): fit simulated continuous EEG from 200 events, then use Unfold's `effects` to predict event-related curves at different $x_1$ values, holding $x_2=0$. Both fits keep **$k=8$ per predictor**; one is unpenalized, while the other estimates smoothing through REML. This selects the smoothing strength, not the number of basis functions.
+[ERP example and results](results/erp_effects/RESULTS.md): fit continuous EEG generated with UnfoldSim using our 200 predictor pairs, then use Unfold's `effects` to predict event-related curves at different $x_1$ values, holding $x_2=0$. Both fits keep **$k=8$ per predictor**; one is unpenalized, while the other estimates smoothing through REML.
 
 <img src="assets/erp_effects.svg" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
 

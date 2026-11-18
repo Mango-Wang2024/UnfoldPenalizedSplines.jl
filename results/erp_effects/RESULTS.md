@@ -12,16 +12,16 @@ RMSE against the known simulated response, across the **21 predictor values × 6
 
 | Fit | RMSE (µV) |
 | --- | ---: |
-| Unpenalized, $k=8$ | 0.20825 |
-| REML smoothing, $k=8$ | 0.15229 |
+| Unpenalized, $k=8$ | 0.22374 |
+| REML smoothing, $k=8$ | 0.16325 |
 
-REML selected $\lambda_1=0.72330$ and $\lambda_2=93.33883$. Each value is shared across that predictor's lag columns. This penalizes curvature across predictor values; it does not add a separate smoothness penalty along time. These results describe this simulation, rather than a general accuracy guarantee.
+REML selected $\lambda_1=0.64298$ and $\lambda_2=69.81969$. Each value is shared across that predictor's lag columns. The penalty controls curvature across predictor values.
 
 ## Data and workflow
 
-The example reuses the original **200 pairs of predictor values**, randomly orders them into events, and simulates a continuous EEG recording with overlapping responses. Sampling is **100 Hz**, the response window is **−0.1 to 0.5 s**, event intervals are **0.2–0.5 s**, and Gaussian noise has standard deviation **0.8 µV** (seed 2026).
+The example shuffles the original **200 predictor pairs** and passes them to UnfoldSim. It generates a continuous EEG recording with overlapping responses at **100 Hz**, event intervals of **0.2–0.5 s**, and Gaussian noise with standard deviation **0.8 µV** (seed 2026). Unfold fits the response from **−0.1 to 0.5 s**.
 
-The early positive and negative peaks are shared across events. The later positive peak's amplitude depends on the project's original additive function, $\sin(1.7x_1)+0.15x_1+0.5\cos(1.2x_2)$; the exact simulation is defined in [known_erp](../../examples/erp_effects.jl).
+UnfoldSim supplies the P100, N170, and P300 waveforms. In our example, the P300 amplitude is $5+4[\sin(1.7x_1)+0.15x_1]+0.5\cos(1.2x_2)$. [Simulation code](../../examples/erp_effects.jl)
 
 `Continuous recording + events → Unfold time expansion → fit → effects → predicted ERP curves`
 
@@ -47,4 +47,11 @@ julia --project=assets -e 'using Pkg; Pkg.instantiate()'
 julia --project=assets assets/plot_erp_effects.jl results/erp_effects/curves.csv assets/erp_effects.png
 ```
 
-To repeat the simulation and both fits before drawing the figure, install the plotting dependencies as above, then run `julia --project=. examples/erp_effects.jl` from the package environment.
+To repeat the simulation and both fits before drawing the figure, install the plotting dependencies as above, then run:
+
+```sh
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
+julia --project=. examples/erp_effects.jl
+```
+
+To regenerate the demo plots in the same run, pass an output folder, for example `julia --project=. examples/erp_effects.jl smoothing-plots`. This also requires `cwebp` on your PATH.

@@ -34,7 +34,7 @@ for (panel, method) in enumerate(["Unpenalized", "REML"])
                 xtickwidth=scale, ytickwidth=scale,
                 xticksize=5scale, yticksize=5scale,
                 xticks=[0.0,0.2,0.4], yticks=Float64.([-3,0,3,6,9]),
-                limits=(-0.1,0.5,-6.5,10.5)))
+                limits=(-0.1,0.5,-7.5,10.5)))
 end
 Colorbar(figure[1,3]; colormap=:roma, limits=(-2,2), width=12,
          ticklabelsize=font_size, ticklabelfont=:regular,

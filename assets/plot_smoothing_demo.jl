@@ -15,7 +15,7 @@ mktempdir() do temporary
         fig = Figure(size=(420, 380), fontsize=16, backgroundcolor=:white)
         ax = Axis(fig[1, 1]; xlabel="Time [s]", ylabel="Voltage [µV]",
             xticks=[0.0, 0.2, 0.4], yticks=[-3.0, 0.0, 3.0, 6.0, 9.0],
-            limits=(-0.1, 0.5, -6.5, 10.5), xgridvisible=false, ygridvisible=false)
+            limits=(-0.1, 0.5, -7.5, 10.5), xgridvisible=false, ygridvisible=false)
         hidespines!(ax, :t, :r)
         Colorbar(fig[1, 2]; colormap=:roma, limits=(-2, 2), ticks=[-2, 0, 2],
             width=11, topspinecolor=:transparent, ticksvisible=false, ticklabelpad=7)
