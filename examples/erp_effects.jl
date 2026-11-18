@@ -88,7 +88,7 @@ run(`$(Base.julia_cmd()) --project=$assets $plot_script $curves_file $figure`)
 
 # Pass a folder to also render both demo panels for every slider setting.
 if !isempty(ARGS)
-    include("smoothing_fits.jl")
+    include(joinpath(assets, "fit_smoothing_demo.jl"))
     fits = smoothing_fits(smoothed, data)
     mktemp() do path, io
         serialize(io, fits)
