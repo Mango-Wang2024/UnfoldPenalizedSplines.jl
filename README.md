@@ -31,7 +31,7 @@ The numerical code is reused from [Penalized-Splines](https://github.com/Mango-W
 | --- | --- |
 | [two_predictors.jl](examples/two_predictors.jl) | Runs the two-predictor example. |
 | [erp_effects.jl](examples/erp_effects.jl) | Compares unpenalized and REML-smoothed ERP effects. |
-| [plot_erp_effects.R](assets/plot_erp_effects.R) | Draws the two-panel ERP figure. |
+| [plot_erp_effects.jl](assets/plot_erp_effects.jl) | Draws the two-panel ERP figure with UnfoldMakie and CairoMakie. |
 | [training.csv](examples/data/training.csv) | 200 observations for fitting. |
 | [prediction_grid.csv](examples/data/prediction_grid.csv) | 961 points for evaluating predictions. |
 
@@ -79,9 +79,9 @@ The bundled example retains the original grid RMSE of **0.0794**. [Example resul
 
 [ERP example and results](results/erp_effects/RESULTS.md): fit simulated continuous EEG from 200 events, then use Unfold's `effects` to predict event-related curves at different $x_1$ values, holding $x_2=0$. Both fits keep **$k=8$ per predictor**; one is unpenalized, while the other estimates smoothing through REML. This selects the smoothing strength, not the number of basis functions.
 
-<img src="assets/erp_effects.png" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
+<img src="assets/erp_effects.svg" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
 
-Run `julia --project=. examples/erp_effects.jl` to reproduce the data, fits and figure. Rendering uses base R through `Rscript`.
+The figure uses the same data and Makie plotting code as the [tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/). See the [reproduction commands](results/erp_effects/RESULTS.md#files-and-reproduction) to redraw it or rerun the full example.
 
 ## Dependencies and sources
 

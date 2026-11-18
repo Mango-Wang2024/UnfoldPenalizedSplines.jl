@@ -1,6 +1,6 @@
 # Marginal ERP effects: fixed basis and REML smoothing
 
-<img src="../../assets/erp_effects.png" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
+<img src="../../assets/erp_effects.svg" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
 
 Both panels use **8 basis functions per predictor**, the same simulated recording and the same time-expanded design. The left fit has no smoothing penalty; the right fit estimates each predictor's smoothing strength with REML. The basis size stays fixed.
 
@@ -25,14 +25,14 @@ The early positive and negative peaks are shared across events. The later positi
 
 `Continuous recording + events → Unfold time expansion → fit → effects → predicted ERP curves`
 
-The plot follows the presentation of the [Unfold effects tutorial](https://unfoldtoolbox.github.io/UnfoldDocs/Unfold.jl/stable/generated/HowTo/effects/), using our own two-predictor simulation. Both fits run in Julia; R only draws the figure.
+This is the same figure as in the [penalized spline tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/). It uses UnfoldMakie and CairoMakie to plot the predictions from both fits.
 
 ## Files and reproduction
 
 | File | Contents |
 | --- | --- |
 | [erp_effects.jl](../../examples/erp_effects.jl) | Simulation, both fits and native Unfold `effects` calls. |
-| [plot_erp_effects.R](../../assets/plot_erp_effects.R) | Figure layout and colors. |
+| [plot_erp_effects.jl](../../assets/plot_erp_effects.jl) | Makie figure layout and colors. |
 | [curves.csv](curves.csv) | Both fits' plotted predictions and known responses. |
 | [summary.csv](summary.csv) | RMSE values. |
 | [smoothing_parameters.csv](smoothing_parameters.csv) | REML smoothing and variance estimates. |
@@ -40,4 +40,11 @@ The plot follows the presentation of the [Unfold effects tutorial](https://unfol
 | [recording.csv](recording.csv) | Clean and noisy simulated recording. |
 | [run.log](run.log) | Execution output. |
 
-From the repository root, run `julia --project=. examples/erp_effects.jl`. Julia dependencies are listed in [Project.toml](../../Project.toml); figure rendering uses base R through `Rscript`.
+To redraw the saved predictions, run these commands from the repository root:
+
+```sh
+julia --project=assets -e 'using Pkg; Pkg.instantiate()'
+julia --project=assets assets/plot_erp_effects.jl results/erp_effects/curves.csv assets/erp_effects.png
+```
+
+To repeat the simulation and both fits before drawing the figure, install the plotting dependencies as above, then run `julia --project=. examples/erp_effects.jl` from the package environment.
