@@ -73,7 +73,7 @@ smoothing_parameters(model)
 
 As in ordinary Unfold formulas, `0` on the left is a placeholder; the responses are supplied in `data`.
 
-The bundled example retains the original grid RMSE of **0.0794**. [Example results and output data](results/two_predictors/RESULTS.md) include this package's predictions, coefficients, smoothing estimates and execution log. Across the research project's five saved cases, the largest absolute difference from its R-reference grid predictions is **1.2 × 10⁻⁸**. Native Unfold prediction and coefficient reporting are used in these comparisons.
+The bundled example retains the original grid RMSE of **0.0794**. [Example results and output data](results/two_predictors/RESULTS.md) include this package's predictions, coefficients, smoothing estimates and execution log. Across the research project's five saved cases, the largest absolute difference from its R-reference grid predictions is **3.8 × 10⁻⁷**. Native Unfold prediction and coefficient reporting are used in these comparisons.
 
 ## Marginal effects over time
 
