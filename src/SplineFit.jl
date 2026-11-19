@@ -51,10 +51,6 @@ end
 """Joint REML fitting through MixedModels; each component has its own r² and lambda."""
 function fit_reml(y::AbstractVector,X::AbstractMatrix,Z_blocks::AbstractVector{<:AbstractMatrix})
     prepared=build_model(y,X,Z_blocks);m=prepared.model
-    # Multi-parameter reference checks need tighter objective stopping tolerances.
-    m.optsum.ftol_rel=1e-14
-    m.optsum.ftol_abs=1e-12
-    m.optsum.xtol_abs=fill(1e-10,length(m.θ))
     MixedModels.fit!(m;REML=true,progress=false)
     status=m.optsum.returnvalue
     status in (:SUCCESS,:STOPVAL_REACHED,:FTOL_REACHED,:XTOL_REACHED) || error("MixedModels did not converge: $status")
