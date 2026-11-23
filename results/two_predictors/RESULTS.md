@@ -14,11 +14,11 @@ Produced by running this package's [example](../../examples/two_predictors.jl) t
 
 [Predictions and errors](predictions.csv), [fitted coefficients](coefficients.csv), [smoothing and variance estimates](smoothing_parameters.csv), and [execution log](run.log).
 
-Unfold version: 0.8.12. RMSE is measured in response units.
+The saved results used Unfold 0.8.12. Standard Unfold 0.8.13 reproduces the grid predictions exactly. RMSE is measured in response units.
 
 ## Recorded solver dispatch checks
 
-The example uses the normal `fit(...)` entry point. `modelmatrix` returns a `REMLAdapter`, and multiple dispatch selects its `solver_default` method.
+The example now uses `fit_pspl(...)`, which supplies the REML solver through standard Unfold's `fit!` interface.
 
 | Unfold source | Passed checks | Record |
 | --- | ---: | --- |
@@ -26,6 +26,6 @@ The example uses the normal `fit(...)` entry point. `modelmatrix` returns a `REM
 | `feature-bychannel` | 65/65 | [Checks](bychannel_checks.log) |
 | `feature-denseDesign` | 63/63 | [Checks](dense_checks.log) |
 
-The recorded checks predate the switch to default optimizer tolerances. The main checks cover the five saved R-reference cases, variable predictor counts, continuous-time fitting and ordinary Unfold regression. Branch checks also cover multiple event designs, per-channel matrices or dense continuous matrices. The same formula-aware `modelmatrix` extension was applied to each branch snapshot for these checks.
+The recorded checks used a formula-aware `modelmatrix` extension and custom optimizer tolerances. They cover the five saved R-reference cases, variable predictor counts, continuous-time fitting and ordinary Unfold regression. Branch checks also cover multiple event designs, per-channel matrices or dense continuous matrices.
 
-Unfold dependency: [55a451d](https://github.com/Mango-Wang2024/Unfold.jl/commit/55a451d6e44257c70d99e694db6205499535b3cc). Branch snapshots: [feature-bychannel](https://github.com/unfoldtoolbox/Unfold.jl/tree/df0058ecf599690065c227691d32d0a0fb754443) and [feature-denseDesign](https://github.com/unfoldtoolbox/Unfold.jl/tree/4edc81005ae69e0ad33e7331e0a8ff46bcbc3bac).
+Historical Unfold snapshots: [integration copy](https://github.com/Mango-Wang2024/Unfold.jl/commit/55a451d6e44257c70d99e694db6205499535b3cc), [feature-bychannel](https://github.com/unfoldtoolbox/Unfold.jl/tree/df0058ecf599690065c227691d32d0a0fb754443) and [feature-denseDesign](https://github.com/unfoldtoolbox/Unfold.jl/tree/4edc81005ae69e0ad33e7331e0a8ff46bcbc3bac).

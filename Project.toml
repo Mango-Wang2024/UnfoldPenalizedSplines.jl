@@ -15,7 +15,6 @@ Unfold = "181c99d8-e21b-4ff3-b70b-c233eddec679"
 UnfoldSim = "ed8ae6d2-84d3-44c6-ab46-0baf21700804"
 
 [sources]
-Unfold = {url = "https://github.com/Mango-Wang2024/Unfold.jl.git", rev = "55a451d6e44257c70d99e694db6205499535b3cc"}
 # This upstream revision supports the project's MixedModels 5 release.
 UnfoldSim = {url = "https://github.com/unfoldtoolbox/UnfoldSim.jl.git", rev = "994f253c2fa0d918357c94180b206732e0b7b2ae"}
 
@@ -26,6 +25,6 @@ DelimitedFiles = "1"
 MixedModels = "=5.9.0"
 Statistics = "1"
 StatsModels = "0.7"
-Unfold = "0.8"
+Unfold = "0.8.12"
 UnfoldSim = "0.5"
 julia = "1.11"

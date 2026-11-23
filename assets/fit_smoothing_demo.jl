@@ -1,8 +1,8 @@
 using DataFrames, LinearAlgebra, StatsModels, Unfold, UnfoldPenalizedSplines
 
 function smoothing_fits(model, data)
-    adapter, response = Unfold.equalize_size(Unfold.modelmatrix(model), data)
-    X = adapter.X
+    X, response = Unfold.equalize_size(Unfold.modelmatrix(model), data)
+    adapter = UnfoldPenalizedSplines.REMLAdapter(X, Unfold.formulas(model))
     gram = Matrix(X'X)
     rhs = Vector(X' * vec(response))
 

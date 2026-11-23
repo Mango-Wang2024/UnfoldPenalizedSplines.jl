@@ -52,11 +52,10 @@ formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))
 basis = firbasis(τ=(-0.1, 0.5), sfreq=sfreq; interpolate=false)
 println("Fitting fixed-basis unpenalized model...")
 flush(stdout)
-fixed = fit(UnfoldModel, formula, events, data, basis;
-            solver=(X, y) -> Unfold.solver_default(X.X, y))
+fixed = fit(UnfoldModel, formula, events, data, basis)
 println("Fitting REML-smoothed model...")
 flush(stdout)
-smoothed = fit(UnfoldModel, formula, events, data, basis)
+smoothed = fit_pspl(formula, events, data, basis)
 
 # Each row of the reference grid generates an event-related curve without overlap.
 reference = Dict(:x1 => collect(range(-2, 2; length=21)), :x2 => [0.0])

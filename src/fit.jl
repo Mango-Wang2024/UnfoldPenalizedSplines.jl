@@ -1,4 +1,4 @@
-struct REMLAdapter{T,M<:AbstractMatrix{T}} <: AbstractMatrix{T}
+struct REMLAdapter{M<:AbstractMatrix}
     X::M
     fixed::Vector{Int}
     random::Vector{Vector{Int}}
@@ -25,30 +25,36 @@ function REMLAdapter(X::AbstractMatrix, forms::AbstractVector{<:StatsModels.Form
     return REMLAdapter(X, fixed, random, components)
 end
 
-# The term owns these methods. Unfold calls this hook after assembling its matrix.
-StatsModels.modelmatrix(::PenalizedSplineTerm, X::AbstractMatrix, forms) =
-    REMLAdapter(X, forms)
-StatsModels.modelmatrix(::PenalizedSplineTerm, X::REMLAdapter, forms) = X
+"""
+    fit_pspl(formula, events, data, basis_or_times; kwargs...)
+    fit_pspl(design, events, data; kwargs...)
 
-# Keep Unfold's normal dimension checks, row alignment and prediction operations.
-Base.size(adapter::REMLAdapter) = size(adapter.X)
-Base.getindex(adapter::REMLAdapter, indices...) = getindex(adapter.X, indices...)
-function Base.getindex(adapter::REMLAdapter, rows::AbstractVector, ::Colon)
-    return REMLAdapter(adapter.X[rows, :], adapter.fixed, adapter.random, adapter.components)
+Fit penalized spline terms with REML and return a standard Unfold model.
+Pass a FIR basis for continuous recordings or a vector of times for epoched data.
+"""
+fit_pspl(formula::StatsModels.FormulaTerm, events, data, basis_or_times; kwargs...) =
+    fit_pspl([Any => (formula, basis_or_times)], events, data; kwargs...)
+
+function fit_pspl(design::Vector, events, data::AbstractArray; kwargs...)
+    model = Unfold.fit(Unfold.UnfoldModel, design, events, data; fit=false, kwargs...)
+    response = Unfold.check_data(typeof(model), data)
+    forms = Unfold.formulas(model)
+    if ndims(response) == 3
+        # Unfold calls the solver once per event design for epoched data.
+        by_matrix = IdDict(zip(Unfold.modelmatrix(model), forms))
+        solver = (X, y) -> solve_reml(X, y, [by_matrix[X]])
+    else
+        solver = (X, y) -> solve_reml(X, y, forms)
+    end
+    Unfold.fit!(model, response; solver)
+    return model
 end
-Base.Matrix(adapter::REMLAdapter) = Matrix(adapter.X)
-Base.Matrix{T}(adapter::REMLAdapter) where {T} = Matrix{T}(adapter.X)
 
-Unfold.predict(adapter::REMLAdapter, coefficients::AbstractMatrix) =
-    Unfold.predict(adapter.X, coefficients)
-Unfold.predict(adapter::REMLAdapter{Tx}, coefficients::AbstractArray{Tc,3}) where
-    {Tx<:Union{Missing,Number},Tc<:Union{Missing,Number}} =
-    Unfold.predict(adapter.X, coefficients)
-
-Unfold.solver_default(adapter::REMLAdapter, data::AbstractMatrix; kwargs...) =
-    solve_reml(adapter, data)
-Unfold.solver_default(adapter::REMLAdapter, data::AbstractArray{T,3}; kwargs...) where {T} =
-    solve_reml(adapter, data)
+function solve_reml(X::AbstractMatrix, data, forms)
+    adapter = REMLAdapter(X, forms)
+    isempty(adapter.random) && return Unfold.solver_default(X, data)
+    return solve_reml(adapter, data)
+end
 
 function solve_reml(adapter::REMLAdapter, data::AbstractArray{T,N}) where {T,N}
     X = adapter.X
@@ -80,10 +86,12 @@ function solve_reml(adapter::REMLAdapter, data::AbstractArray{T,N}) where {T,N}
     return Unfold.LinearModelFit{Float64,N}(; estimate=coefficients, info)
 end
 
-# feature-bychannel supplies one matrix per channel to the default solver.
-function Unfold.solver_default(adapters::AbstractVector{<:REMLAdapter},
-                               data::AbstractArray{T,3}; kwargs...) where {T}
-    results = [Unfold.solver_default(adapter, view(data, ch:ch, :, :); kwargs...)
+# With bychannel(), Unfold passes a separate design matrix for each channel.
+function solve_reml(matrices::AbstractVector{<:AbstractMatrix}, data::AbstractArray{T,3},
+                    forms) where {T}
+    adapters = [REMLAdapter(X, forms) for X in matrices]
+    isempty(first(adapters).random) && return Unfold.solver_default(matrices, data)
+    results = [solve_reml(adapter, view(data, ch:ch, :, :))
                for (ch, adapter) in enumerate(adapters)]
     coefficients = cat((result.estimate for result in results)...; dims=1)
     fits = vcat((result.info.fits for result in results)...)
