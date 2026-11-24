@@ -17,6 +17,7 @@ Pkg.add([
                     rev="994f253c2fa0d918357c94180b206732e0b7b2ae"),
     Pkg.PackageSpec(url="https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl"),
     Pkg.PackageSpec(name="CairoMakie"),
+    Pkg.PackageSpec(name="UnfoldMakie"),
 ])
 ```
 
@@ -28,7 +29,7 @@ Pkg.add([
 using Unfold
 using UnfoldSim
 using UnfoldPenalizedSplines
-using CairoMakie
+using CairoMakie, UnfoldMakie
 ```
 
 ## Simulate EEG with a nonlinear effect
@@ -66,26 +67,19 @@ Predict the EEG at 21 values of x₁ while holding x₂ at 0.5. Each color repre
 
 ```julia
 grid = Dict(:x1 => collect(range(-2, 2; length=21)), :x2 => [0.5])
-predictions = (effects(grid, unpenalized), effects(grid, penalized))
-colors = CairoMakie.Makie.resample_cmap(:roma, length(grid[:x1]))
-figure = Figure(size=(850, 380), fontsize=16, backgroundcolor=:white)
+panels = ["Unpenalized", "Penalized"]
+curves = vcat(effects(grid, unpenalized), effects(grid, penalized); source=:method => panels)
+panel_order = UnfoldMakie.AlgebraOfGraphics.sorter(panels)
 
-for (panel, (title, curves)) in enumerate(zip(("Unpenalized", "Penalized"), predictions))
-    ax = Axis(figure[1, panel]; title, titlefont=:regular, titlealign=:left,
-        xlabel="Time [s]", ylabel="Voltage [µV]",
-        xticks=[0.0, 0.2, 0.4], yticks=[-3.0, 0.0, 3.0, 6.0, 9.0],
-        limits=(-0.1, 0.5, -7.5, 10.5), xgridvisible=false, ygridvisible=false)
-    hidespines!(ax, :t, :r)
-    for (x1, color) in zip(grid[:x1], colors)
-        curve = curves[curves.x1 .== x1, :]
-        lines!(ax, curve.time, curve.yhat; color, linewidth=1.6)
-    end
+with_theme(; size=(850, 380), fontsize=16) do
+    plot_erp(curves;
+        mapping=(; y=:yhat, color=:x1, group=:x1 => nonnumeric, col=:method => panel_order),
+        axis=(; xticks=[0.0, 0.2, 0.4], yticks=[-3, 0, 3, 6, 9],
+              limits=(-0.1, 0.5, -7.5, 10.5)),
+        visual=(; linewidth=1.6),
+        colorbar=(; label="x₁", labelrotation=0, width=11, ticks=[-2, 0, 2],
+                  ticksvisible=false, topspinecolor=:transparent))
 end
-
-Colorbar(figure[1, 3]; colormap=:roma, limits=(-2, 2), ticks=[-2, 0, 2],
-    width=11, topspinecolor=:transparent, ticksvisible=false, ticklabelpad=7)
-Label(figure[1, 3, Top()], "x₁")
-figure
 ```
 
 ![Predicted EEG responses across x₁ from the unpenalized and penalized fits, with x₂ held at 0.5](assets/erp-effects.svg)
