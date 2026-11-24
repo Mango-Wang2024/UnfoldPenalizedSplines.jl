@@ -49,6 +49,22 @@ evts.x1 = evts.continuous
 evts.x2 = rand(UnfoldSim.MersenneTwister(1), size(evts, 1))
 ```
 
+### Check the first five events
+
+Each row is one event. `latency` is the sample where it begins in the EEG recording.
+
+```julia
+first(evts, 5)
+```
+
+| Row | continuous | condition | latency | x1 | x2 |
+| ---: | ---: | --- | ---: | ---: | ---: |
+| 1 | 3.8889 | car | 62 | 3.8889 | 0.0991 |
+| 2 | -3.8889 | face | 132 | -3.8889 | 0.7020 |
+| 3 | -5.0000 | face | 196 | -5.0000 | 0.5033 |
+| 4 | -1.6667 | face | 249 | -1.6667 | 0.8758 |
+| 5 | 3.8889 | face | 303 | 3.8889 | 0.9535 |
+
 ## Fit the spline models
 
 Fit both models over the same window, from −100 to +500 ms relative to each event.
