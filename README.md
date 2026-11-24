@@ -28,8 +28,6 @@ The numerical code is reused from [Penalized-Splines](https://github.com/Mango-W
 | File | Purpose |
 | --- | --- |
 | [two_predictors.jl](examples/two_predictors.jl) | Runs the two-predictor example. |
-| [erp_effects.jl](examples/erp_effects.jl) | Compares unpenalized and REML-smoothed ERP effects. |
-| [plot_erp_effects.jl](assets/plot_erp_effects.jl) | Draws the two-panel ERP figure with UnfoldMakie and CairoMakie. |
 | [training.csv](examples/data/training.csv) | 200 observations for fitting. |
 | [prediction_grid.csv](examples/data/prediction_grid.csv) | 961 points for evaluating predictions. |
 
@@ -39,6 +37,7 @@ The numerical code is reused from [Penalized-Splines](https://github.com/Mango-W
 | --- | --- |
 | [RESULTS.md](results/two_predictors/RESULTS.md) | Results and links to numerical outputs. |
 | [Project.toml](Project.toml) | Dependencies and compatible versions. |
+| [EEG tutorial](docs/src/tutorials/erp_effects.md) | Simulates EEG, compares the spline fits, and introduces the smoothing demo. |
 
 ## Workflow
 
@@ -74,11 +73,7 @@ The bundled example retains the original grid RMSE of **0.0794**. [Example resul
 
 ## Marginal effects over time
 
-[ERP example and results](results/erp_effects/RESULTS.md): fit continuous EEG generated with UnfoldSim using our 200 predictor pairs, then use Unfold's `effects` to predict event-related curves at different $x_1$ values, holding $x_2=0$. Both fits keep **$k=8$ per predictor**; one is unpenalized, while the other estimates smoothing through REML.
-
-<img src="assets/erp_effects.svg" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
-
-See the [reproduction commands](results/erp_effects/RESULTS.md#files-and-reproduction) to redraw this figure. The [tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/) demonstrates the same fitting workflow with a quadratic P300 simulation.
+The [EEG tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/tutorials/erp_effects/) uses UnfoldSim and `plot_erp!` to compare unpenalized and penalized predictions and includes a demo for adjusting both smoothing strengths.
 
 ## Dependencies and sources
 
