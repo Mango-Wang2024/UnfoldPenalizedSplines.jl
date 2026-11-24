@@ -1893,22 +1893,22 @@ html&gt;body{padding:0}&lt;/style&gt;
   &lt;/style&gt;
   &lt;div class=&quot;erp-controls&quot;&gt;
     &lt;div class=&quot;erp-control&quot;&gt;
-      &lt;div class=&quot;erp-label&quot;&gt;&lt;label class=&quot;form-label&quot; for=&quot;erp-lambda-one&quot;&gt;λ₁ · x₁ spline&lt;/label&gt;&lt;output id=&quot;erp-lambda-one-value&quot; class=&quot;tabular-nums&quot;&gt;0.643 · REML&lt;/output&gt;&lt;/div&gt;
+      &lt;div class=&quot;erp-label&quot;&gt;&lt;label class=&quot;form-label&quot; for=&quot;erp-lambda-one&quot;&gt;λ₁ · x₁ spline&lt;/label&gt;&lt;output id=&quot;erp-lambda-one-value&quot; class=&quot;tabular-nums&quot;&gt;411.6 · REML&lt;/output&gt;&lt;/div&gt;
       &lt;input class=&quot;form-range&quot; id=&quot;erp-lambda-one&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;7&quot; step=&quot;1&quot; value=&quot;4&quot; aria-describedby=&quot;erp-lambda-one-value&quot;&gt;
       &lt;div class=&quot;erp-extents text-small&quot;&gt;&lt;span&gt;No penalty&lt;/span&gt;&lt;span&gt;Stronger smoothing&lt;/span&gt;&lt;/div&gt;
     &lt;/div&gt;
     &lt;div class=&quot;erp-control&quot;&gt;
-      &lt;div class=&quot;erp-label&quot;&gt;&lt;label class=&quot;form-label&quot; for=&quot;erp-lambda-two&quot;&gt;λ₂ · x₂ spline&lt;/label&gt;&lt;output id=&quot;erp-lambda-two-value&quot; class=&quot;tabular-nums&quot;&gt;69.82 · REML&lt;/output&gt;&lt;/div&gt;
+      &lt;div class=&quot;erp-label&quot;&gt;&lt;label class=&quot;form-label&quot; for=&quot;erp-lambda-two&quot;&gt;λ₂ · x₂ spline&lt;/label&gt;&lt;output id=&quot;erp-lambda-two-value&quot; class=&quot;tabular-nums&quot;&gt;11,480 · REML&lt;/output&gt;&lt;/div&gt;
       &lt;input class=&quot;form-range&quot; id=&quot;erp-lambda-two&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;7&quot; step=&quot;1&quot; value=&quot;4&quot; aria-describedby=&quot;erp-lambda-two-value&quot;&gt;
       &lt;div class=&quot;erp-extents text-small&quot;&gt;&lt;span&gt;No penalty&lt;/span&gt;&lt;span&gt;Stronger smoothing&lt;/span&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;div class=&quot;erp-panels&quot;&gt;
-    &lt;section class=&quot;erp-panel&quot;&gt;&lt;h3&gt;Vary x₁ · hold x₂ = 0&lt;/h3&gt;&lt;img class=&quot;erp-chart&quot; width=&quot;420&quot; height=&quot;380&quot; alt=&quot;Twenty-one predicted EEG response curves at different x1 values, holding x2 at zero.&quot;&gt;&lt;/section&gt;
+    &lt;section class=&quot;erp-panel&quot;&gt;&lt;h3&gt;Vary x₁ · hold x₂ = 0.5&lt;/h3&gt;&lt;img class=&quot;erp-chart&quot; width=&quot;420&quot; height=&quot;380&quot; alt=&quot;Twenty-one predicted EEG response curves at different x1 values, holding x2 at 0.5.&quot;&gt;&lt;/section&gt;
     &lt;section class=&quot;erp-panel&quot;&gt;&lt;h3&gt;Vary x₂ · hold x₁ = 0&lt;/h3&gt;&lt;img class=&quot;erp-chart&quot; width=&quot;420&quot; height=&quot;380&quot; alt=&quot;Twenty-one predicted EEG response curves at different x2 values, holding x1 at zero.&quot;&gt;&lt;/section&gt;
   &lt;/div&gt;
   &lt;span class=&quot;sr-only&quot; id=&quot;erp-lambda-live&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;
-  &lt;script type=&quot;application/json&quot; id=&quot;erp-lambda-data&quot;&gt;{&quot;lambda&quot;:[0.6429847542142964,69.81969194117245],&quot;factors&quot;:[0,0.001,0.01,0.1,1,10,100,1000]}&lt;/script&gt;
+  &lt;script type=&quot;application/json&quot; id=&quot;erp-lambda-data&quot;&gt;{&quot;lambda&quot;:[411.5553469905281,11476.807327676903],&quot;factors&quot;:[0,0.001,0.01,0.1,1,10,100,1000]}&lt;/script&gt;
   &lt;script&gt;
   (() =&gt; {
     const root = document.getElementById(&#x27;erp-lambda-explorer&#x27;);
@@ -1929,7 +1929,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       });
       const state = indices[0] * data.factors.length + indices[1];
       charts.forEach((chart, panel) =&gt; {
-        chart.src = `smoothing-plots/x${panel + 1}-${state}.webp?v=unfoldsim`;
+        chart.src = `smoothing-plots/x${panel + 1}-${state}.webp?v=pluto`;
       });
     }
 
