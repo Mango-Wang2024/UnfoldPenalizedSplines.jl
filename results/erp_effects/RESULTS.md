@@ -27,7 +27,7 @@ UnfoldSim supplies the P100, N170, and P300 waveforms. In our example, the P300 
 
 `Continuous recording + events → Unfold time expansion → fit → effects → predicted ERP curves`
 
-This is the same figure as in the [penalized spline tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/). It uses UnfoldMakie and CairoMakie to plot the predictions from both fits.
+The figure uses UnfoldMakie and CairoMakie to plot the predictions from both fits. The [penalized spline tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/) uses the same fitting workflow with a quadratic P300 simulation.
 
 ## Files and reproduction
 

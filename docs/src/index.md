@@ -1,71 +1,87 @@
 # Penalized splines
 
-Fit two spline models to the same simulated EEG and compare their predicted event-related responses. Both models use the same spline basis. The second estimates the smoothing strengths with REML.
+Use the same spline basis to fit the simulated EEG with and without a smoothing penalty. The penalized fit estimates one smoothing strength per predictor using REML.
 
-## Load the example data
-
-Run the example from the [package repository](https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl). UnfoldSim generated the recording from 200 events. Both predictors affect the height of the P300 peak. [Simulation code and data](https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl/blob/main/results/erp_effects/RESULTS.md)
+## Setup
 
 ```@raw html
-<details><summary>Setup</summary>
+<details><summary>Install the packages</summary>
 ```
-
-```sh
-julia --project=. -e 'using Pkg; Pkg.instantiate()'
-julia --project=assets -e 'using Pkg; Pkg.instantiate()'
-```
-
-Start Julia with `julia --project=.` and load the saved recording.
 
 ```julia
-using Unfold, UnfoldPenalizedSplines, DataFrames, DelimitedFiles
-
-folder = "results/erp_effects"
-event_rows, _ = readdlm(joinpath(folder, "events.csv"), ',', Float64; header=true)
-recording, _ = readdlm(joinpath(folder, "recording.csv"), ',', Float64; header=true)
-events = DataFrame(x1=event_rows[:, 1], x2=event_rows[:, 2],
-                   latency=Int.(event_rows[:, 3]))
-data = reshape(recording[:, 3], 1, :)
+using Pkg
+Pkg.activate(mktempdir())
+Pkg.add([
+    Pkg.PackageSpec(name="Unfold"),
+    Pkg.PackageSpec(url="https://github.com/unfoldtoolbox/UnfoldSim.jl",
+                    rev="994f253c2fa0d918357c94180b206732e0b7b2ae"),
+    Pkg.PackageSpec(url="https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl"),
+    Pkg.PackageSpec(name="CairoMakie"),
+    Pkg.PackageSpec(name="UnfoldMakie"),
+])
 ```
 
 ```@raw html
 </details>
 ```
 
+```julia
+using Unfold
+using UnfoldSim
+using UnfoldPenalizedSplines
+using CairoMakie, UnfoldMakie
+```
+
+## Simulate EEG with a nonlinear effect
+
+Use UnfoldSim to set the P300 amplitude to 5 + x₁ + 0.2x₁². The second predictor, x₂, is generated after the EEG, so its true effect is zero.
+
+```julia
+p3 = (
+    p300(; sfreq = 100),
+    @formula(0 ~ 1 + continuous + continuous^2),
+    [5, 1, 0.2],
+    Dict(),
+    0,
+)
+data, evts = UnfoldSim.predef_eeg(; noiselevel = 8, p3 = p3)
+evts.x1 = evts.continuous
+evts.x2 = rand(UnfoldSim.MersenneTwister(1), size(evts, 1))
+```
+
 ## Fit the spline models
 
-Use the same formula and time window for both fits.
+Fit both models over the same window, from −100 to +500 ms relative to each event.
 
 ```julia
 formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))
 basis = firbasis(τ=(-0.1, 0.5), sfreq=100; interpolate=false)
 
-unpenalized = fit(UnfoldModel, formula, events, data, basis)
-penalized = fit_pspl(formula, events, data, basis)
+unpenalized = Unfold.fit(UnfoldModel, formula, evts, data, basis)
+penalized = fit_pspl(formula, evts, data, basis)
 ```
 
 ## Plot the marginal effects
 
-Use `effects()` to predict the response at 21 values of x₁ with x₂ held at zero. Each color represents one x₁ value.
+Predict the EEG at 21 values of x₁ while holding x₂ at 0.5. Each color represents one x₁ value.
 
 ```julia
-grid = Dict(:x1 => -2:0.2:2, :x2 => [0.0])
-effects_unpenalized = effects(grid, unpenalized)
-effects_penalized = effects(grid, penalized)
+grid = Dict(:x1 => collect(range(-2, 2; length=21)), :x2 => [0.5])
+effects_combined = vcat(effects(grid, unpenalized), effects(grid, penalized);
+                        source=:method => ["Unpenalized", "REML"])
+
+plot_erp(effects_combined;
+         mapping=(; y=:yhat, color=:x1, group=:x1 => nonnumeric, col=:method))
 ```
 
-![Predicted EEG responses across x₁ for the unpenalized and REML-smoothed fits](assets/erp-effects.svg)
-
-The left panel uses zero penalties. In the right panel, REML estimates λ₁ ≈ 0.6430 and λ₂ ≈ 69.82. The penalties control how much the response can bend across predictor values.
-
-Run `julia --project=. examples/erp_effects.jl` to regenerate the figure. [Example code](https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl/blob/main/examples/erp_effects.jl) · [Plot code](https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl/blob/main/assets/plot_erp_effects.jl)
+![Predicted EEG responses across x₁ from the REML and unpenalized fits, with x₂ held at 0.5](assets/erp-effects.svg)
 
 ## Adjust spline smoothing
 
-Move either slider to see the predictions from a fit with those two smoothing strengths. Both sliders start at the REML estimates. The left plot varies x₁ at x₂ = 0, and the right plot varies x₂ at x₁ = 0.
+Both sliders start at the REML estimates. Move either one to change how much its spline can bend across predictor values. The left plot varies x₁ at x₂ = 0.5, and the right plot varies x₂ from 0 to 1 at x₁ = 0.
 
 ```@raw html
-<iframe id="spline-smoothing-demo" src="assets/smoothing-demo.htm?v=two-sliders" title="Adjust the smoothing strengths of the x1 and x2 splines" loading="lazy" style="display: block; width: 100%; height: 720px; border: 0; background: white; color-scheme: only light;"></iframe>
+<iframe id="spline-smoothing-demo" src="assets/smoothing-demo.htm?v=pluto" title="Adjust the smoothing strengths of the x1 and x2 splines" loading="lazy" style="display: block; width: 100%; height: 720px; border: 0; background: white; color-scheme: only light;"></iframe>
 <script src="assets/embed-demo.js"></script>
 ```
 

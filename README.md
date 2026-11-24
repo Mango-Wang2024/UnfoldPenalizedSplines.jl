@@ -78,7 +78,7 @@ The bundled example retains the original grid RMSE of **0.0794**. [Example resul
 
 <img src="assets/erp_effects.svg" alt="Unpenalized and REML-smoothed marginal ERP effects" width="1000">
 
-The figure uses the same data and Makie plotting code as the [tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/). See the [reproduction commands](results/erp_effects/RESULTS.md#files-and-reproduction) to redraw it or rerun the full example.
+See the [reproduction commands](results/erp_effects/RESULTS.md#files-and-reproduction) to redraw this figure. The [tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSplines.jl/) demonstrates the same fitting workflow with a quadratic P300 simulation.
 
 ## Dependencies and sources
 

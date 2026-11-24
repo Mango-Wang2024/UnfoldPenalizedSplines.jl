@@ -1,13 +1,16 @@
 using DataFrames, LinearAlgebra, StatsModels, Unfold, UnfoldPenalizedSplines
 
-function smoothing_fits(model, data)
+function smoothing_fits(model, data;
+                        predictor_values=(range(-2, 2; length=21), range(-2, 2; length=21)),
+                        held_values=(0.0, 0.0))
     X, response = Unfold.equalize_size(Unfold.modelmatrix(model), data)
     adapter = UnfoldPenalizedSplines.REMLAdapter(X, Unfold.formulas(model))
     gram = Matrix(X'X)
     rhs = Vector(X' * vec(response))
 
-    x = collect(range(-2, 2; length=21))
-    grid = DataFrame(x1=vcat(x, zeros(21)), x2=vcat(zeros(21), x))
+    x1, x2 = predictor_values
+    grid = DataFrame(x1=vcat(x1, fill(held_values[1], length(x2))),
+                     x2=vcat(fill(held_values[2], length(x1)), x2))
     term = only(Unfold.formulas(model)).rhs.term
     design = Matrix(StatsModels.modelcols(term, grid))
 
@@ -25,6 +28,6 @@ function smoothing_fits(model, data)
     end
 
     # Use the same precision as the published demo inputs.
-    return (; design=round.(design; digits=9),
+    return (; predictor_values, design=round.(design; digits=9),
             coefficients=[round.(coef; digits=6) for coef in coefficients])
 end
