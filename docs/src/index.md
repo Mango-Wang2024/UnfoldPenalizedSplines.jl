@@ -67,18 +67,10 @@ Predict the EEG at 21 values of x₁ while holding x₂ at 0.5. Each color repre
 
 ```julia
 grid = Dict(:x1 => collect(range(-2, 2; length=21)), :x2 => [0.5])
-panels = ["Unpenalized", "Penalized"]
-curves = vcat(effects(grid, unpenalized), effects(grid, penalized); source=:method => panels)
-panel_order = UnfoldMakie.AlgebraOfGraphics.sorter(panels)
-
-with_theme(; size=(850, 380), fontsize=16) do
-    plot_erp(curves;
-        mapping=(; y=:yhat, color=:x1, group=:x1 => nonnumeric, col=:method => panel_order),
-        axis=(; xticks=[0.0, 0.2, 0.4], yticks=[-3, 0, 3, 6, 9],
-              limits=(-0.1, 0.5, -7.5, 10.5)),
-        visual=(; linewidth=1.6),
-        colorbar=(; label="x₁", labelrotation=0, width=11, ticks=[-2, 0, 2],
-                  ticksvisible=false, topspinecolor=:transparent))
+effects_combined = vcat(effects(grid, penalized), effects(grid, unpenalized);
+                            source=:method => ["Penalized", "Unpenalized"])
+plot_erp!(Figure(size=(900, 400)), effects_combined;
+        mapping=(; y=:yhat, color=:x1, group=:x1 => nonnumeric, col=:method))
 end
 ```
 
