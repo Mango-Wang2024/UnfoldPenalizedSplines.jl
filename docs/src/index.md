@@ -67,13 +67,16 @@ Predict the EEG at 21 values of x₁ while holding x₂ at 0.5. Each color repre
 
 ```julia
 grid = Dict(:x1 => collect(range(-2, 2; length=21)), :x2 => [0.5])
-effects_combined = vcat(effects(grid, penalized), effects(grid, unpenalized);
-                            source=:method => ["Penalized", "Unpenalized"])
+effects_combined = vcat(
+    effects(grid, penalized), effects(grid, unpenalized);
+    source=:method => ["Penalized", "Unpenalized"],
+)
+
 plot_erp!(Figure(size=(900, 400)), effects_combined;
-            mapping=(; y=:yhat, color=:x1, group=:x1 => nonnumeric, col=:method))
+    mapping=(; y=:yhat, color=:x1, group=:x1 => nonnumeric, col=:method))
 ```
 
-![Predicted EEG responses across x₁ from the unpenalized and penalized fits, with x₂ held at 0.5](assets/erp-effects.svg)
+![Predicted EEG responses across x₁ from the penalized fit on the left and the unpenalized fit on the right, with x₂ held at 0.5](assets/erp-effects.svg)
 
 ## Adjust spline smoothing
 
