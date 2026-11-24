@@ -21,5 +21,7 @@ jobs:
           version: '1.11'
       - run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'
       - run: julia --project=docs docs/make.jl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build
