@@ -1,6 +1,5 @@
 # Usage: julia --project=docs/scripts docs/scripts/plot_smoothing_demo.jl fits_file output_folder
-import Makie
-using CairoMakie, Serialization
+using CairoMakie, DataFrames, Serialization, UnfoldMakie
 
 fits = deserialize(ARGS[1])
 design = fits.design
@@ -12,27 +11,23 @@ mkpath(out)
 mktempdir() do temporary
     row_offset = 0
     for (panel, (label, values)) in enumerate(zip(("x₁", "x₂"), predictor_values))
-        colors = Makie.resample_cmap(:roma, length(values))
+        rows = (row_offset + 1):(row_offset + length(values))
         bounds = extrema(values)
-        fig = Figure(size=(420, 380), fontsize=16, backgroundcolor=:white)
-        ax = Axis(fig[1, 1]; xlabel="Time [s]", ylabel="Voltage [µV]",
-            xticks=[0.0, 0.2, 0.4], yticks=[-3.0, 0.0, 3.0, 6.0, 9.0],
-            limits=(-0.1, 0.5, -7.5, 10.5), xgridvisible=false, ygridvisible=false)
-        hidespines!(ax, :t, :r)
-        Colorbar(fig[1, 2]; colormap=:roma, limits=bounds, ticks=range(bounds...; length=3),
-            width=11, topspinecolor=:transparent, ticksvisible=false, ticklabelpad=7)
-        Label(fig[1, 2, Top()], label)
-
-        traces = [Observable(zeros(length(times))) for _ in values]
-        for (trace, color) in zip(traces, colors)
-            lines!(ax, times, trace; color, linewidth=1.6)
-        end
+        curves = DataFrame(time=repeat(times; outer=length(values)),
+                           predictor=repeat(values; inner=length(times)))
 
         for (state, coefficients) in enumerate(fits.coefficients)
-            weights = reshape(Float64.(coefficients), length(times), :)
-            for (curve, trace) in enumerate(traces)
-                trace[] = weights * Float64.(design[row_offset + curve, :])
-            end
+            weights = reshape(coefficients, length(times), :)
+            curves.yhat = vec(weights * transpose(design[rows, :]))
+            fig = Figure(size=(420, 380), fontsize=16, backgroundcolor=:white)
+            plot_erp!(fig[1, 1], curves;
+                mapping=(; y=:yhat, color=:predictor, group=:predictor => nonnumeric),
+                axis=(; limits=(-0.1, 0.5, -7.5, 10.5), yticklabelsize=16,
+                      xticks=[0.0, 0.2, 0.4], yticks=[-3, 0, 3, 6, 9]),
+                visual=(; colormap=:roma, linewidth=1.6), layout=(; show_legend=false))
+            Colorbar(fig[1, 2]; colormap=:roma, limits=bounds, ticks=range(bounds...; length=3),
+                width=11, topspinecolor=:transparent, ticksvisible=false, ticklabelpad=7)
+            Label(fig[1, 2, Top()], label)
             png = joinpath(temporary, "plot.png")
             save(png, fig; px_per_unit=2)
             image = joinpath(out, "x$(panel)-$(state - 1).webp")
