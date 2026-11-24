@@ -83,7 +83,7 @@ plot_erp!(Figure(size=(900, 400)), effects_combined;
 Both sliders start at the REML estimates. Move either one to change how much its spline can bend across predictor values. The left plot varies x₁ at x₂ = 0.5, and the right plot varies x₂ from 0 to 1 at x₁ = 0.
 
 ```@raw html
-<iframe id="spline-smoothing-demo" src="../../assets/smoothing-demo.htm?v=plot-erp" title="Adjust the smoothing strengths of the x1 and x2 splines" loading="lazy" style="display: block; width: 100%; height: 720px; border: 0; background: white; color-scheme: only light;"></iframe>
+<iframe id="spline-smoothing-demo" src="../../assets/smoothing-demo.htm?v=decimal-ticks" title="Adjust the smoothing strengths of the x1 and x2 splines" loading="lazy" style="display: block; width: 100%; height: 720px; border: 0; background: white; color-scheme: only light;"></iframe>
 <script src="../../assets/embed-demo.js"></script>
 ```
 
