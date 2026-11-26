@@ -10,7 +10,10 @@ function checked_knots(knots)
     t = Float64.(collect(knots))
     length(t) >= 8 || throw(ArgumentError("A cubic B-spline needs at least eight full knot entries"))
     all(isfinite,t) || throw(ArgumentError("Knots must be finite"))
-    all(>(0),diff(t)) || throw(ArgumentError("Full knots must be strictly increasing"))
+    # Repeated endpoint knots are valid, but the breakpoints must be distinct.
+    issorted(t) || throw(ArgumentError("Full knots must be in nondecreasing order"))
+    all(>(0), diff(@view t[4:end-3])) ||
+        throw(ArgumentError("Spline breakpoints must be strictly increasing"))
     return t
 end
 
@@ -23,21 +26,20 @@ function extend_knots(breaks)
     return vcat([b[1]-j*left for j in 3:-1:1],b,[b[end]+j*right for j in 1:3])
 end
 
-"""mgcv bs default: uniform full knots, with a 0.1% data-range expansion."""
+"""Match Unfold's `spl`: quantile breakpoints with repeated endpoint knots."""
 function default_knots(x,k::Int)
     xv = Float64.(collect(x))
     !isempty(xv) && all(isfinite,xv) || throw(ArgumentError("Predictors must be nonempty and finite"))
     k>=4 || throw(ArgumentError("Use at least four cubic B-spline basis functions"))
-    xl,xu = extrema(xv)
-    xr = xu-xl
-    xr>0 || throw(ArgumentError("Predictor range must be positive"))
-    xl -= 0.001*xr
-    xu += 0.001*xr
-    step = (xu-xl)/(k-DEGREE)
-    return collect(range(xl-DEGREE*step,xu+DEGREE*step;length=k+DEGREE+1))
+    breaks = quantile(xv, range(0.0, 1.0; length=k-2))
+    all(>(0), diff(breaks)) ||
+        throw(ArgumentError("Quantile breakpoints must be distinct; use fewer basis functions or supply knots"))
+    # Store the full knot vector so fitting and prediction reuse the same basis.
+    basis = BSplineKit.BSplineBasis(BSplineKit.BSplineOrder(DEGREE+1), breaks)
+    return collect(BSplineKit.knots(basis))
 end
 
-# Full knots already include exterior knots; do not repeat or augment them.
+# The full knot vector already includes the boundary knots.
 package_basis(t) = BSplineKit.BSplineBasis(BSplineKit.BSplineOrder(DEGREE+1),t;augment=Val(false))
 
 function basis_matrix(basis,x,derivative)

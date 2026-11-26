@@ -1,6 +1,6 @@
 # Two-predictor integration results
 
-Produced by running this package's [example](../../examples/two_predictors.jl) through Unfold and its REML adapter.
+These archived results used uniformly spaced knots. The current [example](../../examples/two_predictors.jl) uses quantile breakpoints with repeated endpoints.
 
 - Observations used for fitting: **200**.
 - Prediction grid points: **961**.

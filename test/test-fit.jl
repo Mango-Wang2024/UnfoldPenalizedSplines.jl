@@ -21,7 +21,7 @@ import Unfold
     @test sort(parameters.predictor) == ["x1", "x2"]
     @test all(λ -> isfinite(λ) && λ > 0, parameters.lambda)
 
-    # The saved benchmark has an RMSE of about 0.0794. Allow room for solver variation.
+    # Check the predictions against the known response on the grid.
     prediction = vec(only(Unfold.predict(model, select(grid, :x1, :x2); overlap=true)))
     @test length(prediction) == size(grid, 1)
     @test sqrt(mean(abs2, prediction - grid.truth)) < 0.1
