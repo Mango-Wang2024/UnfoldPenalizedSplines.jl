@@ -2,7 +2,7 @@ module BSplineBasis
 
 using LinearAlgebra, Statistics
 import BSplineKit
-export default_knots, extend_knots, evaluate_basis, build_spline
+export default_knots, evaluate_basis, build_spline
 
 const DEGREE = 3
 
@@ -15,15 +15,6 @@ function checked_knots(knots)
     all(>(0), diff(@view t[4:end-3])) ||
         throw(ArgumentError("Spline breakpoints must be strictly increasing"))
     return t
-end
-
-"""Add three exterior knots on each side of the supplied interval breakpoints."""
-function extend_knots(breaks)
-    b = Float64.(collect(breaks))
-    length(b)>=2 && all(isfinite,b) && all(>(0),diff(b)) ||
-        throw(ArgumentError("Use at least two strictly increasing finite breakpoints"))
-    left,right = b[2]-b[1],b[end]-b[end-1]
-    return vcat([b[1]-j*left for j in 3:-1:1],b,[b[end]+j*right for j in 1:3])
 end
 
 """Match Unfold's `spl`: quantile breakpoints with repeated endpoint knots."""
