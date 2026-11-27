@@ -16,7 +16,7 @@ import Unfold
     events = select(training, :x1, :x2)
     data = reshape(training.y, 1, 1, :)
     formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))
-    model = fit_pspl(formula, events, data, [0.0])
+    model = Unfold.fit(Unfold.UnfoldModel, formula, events, data, [0.0])
     parameters = smoothing_parameters(model)
     @test sort(parameters.predictor) == ["x1", "x2"]
     @test all(λ -> isfinite(λ) && λ > 0, parameters.lambda)

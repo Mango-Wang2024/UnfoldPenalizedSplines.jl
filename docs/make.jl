@@ -7,5 +7,6 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Tutorials" => ["Penalized splines for EEG" => "tutorials/erp_effects.md"],
+        "How-to" => ["Adjust spline smoothing" => "howto/adjust_spline_smoothing.md"],
     ],
 )

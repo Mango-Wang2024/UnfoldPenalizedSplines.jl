@@ -15,7 +15,8 @@ import Unfold
     # The three response lags share one smoothing strength for this spline.
     formula = @formula(0 ~ 1 + pspl(x, 6))
     basis = Unfold.firbasis(τ=(0.0, 0.02), sfreq=100; interpolate=false)
-    model = fit_pspl(formula, events, data, basis)
+    model = Unfold.fit(Unfold.UnfoldModel, formula, events, data, basis)
+    @test Unfold.modelmatrix(model) isa UnfoldPenalizedSplines.REMLAdapter
     parameters = smoothing_parameters(model)
     @test parameters.predictor == ["x"]
     @test ismissing(only(parameters.time))

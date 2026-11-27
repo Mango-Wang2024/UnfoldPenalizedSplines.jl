@@ -12,7 +12,7 @@ events = select(training, :x1, :x2)
 data = reshape(training.y, 1, 1, :) # channel × time point × observation
 
 formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))
-model = fit_pspl(formula, events, data, [0.0])
+model = fit(UnfoldModel, formula, events, data, [0.0])
 
 # Native Unfold prediction uses the saved spline transformations at new x values.
 prediction = vec(only(predict(model, select(grid, :x1, :x2); overlap=true)))

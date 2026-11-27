@@ -12,7 +12,8 @@ Use the same spline basis to fit the simulated EEG with and without a smoothing 
 using Pkg
 Pkg.activate(mktempdir())
 Pkg.add([
-    Pkg.PackageSpec(name="Unfold"),
+    Pkg.PackageSpec(url="https://github.com/Mango-Wang2024/Unfold.jl",
+                    rev="55a451d6e44257c70d99e694db6205499535b3cc"),
     Pkg.PackageSpec(url="https://github.com/unfoldtoolbox/UnfoldSim.jl",
                     rev="994f253c2fa0d918357c94180b206732e0b7b2ae"),
     Pkg.PackageSpec(url="https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl"),
@@ -67,14 +68,15 @@ first(evts, 5)
 
 ## Fit the spline models
 
-Fit both models over the same window, from −100 to +500 ms relative to each event.
+Fit both models over the same window, from −100 to +500 ms relative to each event. Both calls use the Unfold fork pinned above. For the unpenalized fit, the solver takes the design matrix `X.X` from the adapter and uses ordinary least squares. The penalized fit passes the adapter through to the REML solver.
 
 ```julia
 formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))
 basis = firbasis(τ=(-0.1, 0.5), sfreq=100; interpolate=false)
 
-unpenalized = Unfold.fit(UnfoldModel, formula, evts, data, basis)
-penalized = fit_pspl(formula, evts, data, basis)
+unpenalized = Unfold.fit(UnfoldModel, formula, evts, data, basis;
+                         solver=(X, y) -> Unfold.solver_default(X.X, y))
+penalized = Unfold.fit(UnfoldModel, formula, evts, data, basis)
 ```
 
 ## Plot the marginal effects
@@ -95,14 +97,3 @@ plot_erp!(Figure(size=(900, 400)), effects_combined;
 ```
 
 ![Predicted EEG responses across x₁ from the unpenalized fit on the left and the penalized fit on the right, with x₂ held at 0.5](../assets/erp-effects.svg)
-
-## Adjust spline smoothing
-
-Both sliders start at the REML estimates. Move either one to change how much its spline can bend across predictor values. The left plot varies x₁ at x₂ = 0.5, and the right plot varies x₂ from 0 to 1 at x₁ = 0.
-
-```@raw html
-<iframe id="spline-smoothing-demo" src="../../assets/smoothing-demo.htm?v=decimal-ticks" title="Adjust the smoothing strengths of the x1 and x2 splines" loading="lazy" style="display: block; width: 100%; height: 720px; border: 0; background: white; color-scheme: only light;"></iframe>
-<script src="../../assets/embed-demo.js"></script>
-```
-
-[Demo fitting](https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl/blob/main/docs/scripts/fit_smoothing_demo.jl) · [Demo plots](https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl/blob/main/docs/scripts/plot_smoothing_demo.jl)

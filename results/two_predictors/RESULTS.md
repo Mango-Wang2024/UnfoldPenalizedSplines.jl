@@ -1,6 +1,6 @@
 # Two-predictor integration results
 
-These archived results used uniformly spaced knots. The current [example](../../examples/two_predictors.jl) uses quantile breakpoints with repeated endpoints.
+These archived results and the current [example](../../examples/two_predictors.jl) use uniformly spaced knots.
 
 - Observations used for fitting: **200**.
 - Prediction grid points: **961**.
@@ -18,7 +18,7 @@ The saved results used Unfold 0.8.12. Standard Unfold 0.8.13 reproduces the grid
 
 ## Recorded solver dispatch checks
 
-The example now uses `fit_pspl(...)`, which supplies the REML solver through standard Unfold's `fit!` interface.
+The example uses `Unfold.fit(...)`. The pinned Unfold fork returns a `REMLAdapter` that selects the REML solver.
 
 | Unfold source | Passed checks | Record |
 | --- | ---: | --- |
