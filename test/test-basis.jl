@@ -1,17 +1,15 @@
 using LinearAlgebra: eigmin, issymmetric
 
 @testset "Cubic spline basis and penalty" begin
-    # The training grid spans 0 to 20. The default knots extend beyond it.
+    # The uneven grid gives quantile breakpoints 0, 2, 5, and 20.
     x = [0.0, 1.0, 2.0, 3.0, 5.0, 9.0, 20.0]
     k = 6
     knots = UnfoldPenalizedSplines.default_knots(x, k)
     spline = UnfoldPenalizedSplines.build_spline(x, knots)
 
-    # The restored mgcv convention expands the range by 0.1% on each side.
-    @test length(knots) == k + 4
-    @test knots[[4, end - 3]] ≈ [-0.02, 20.02]
-    @test diff(knots) ≈ fill(20.04 / (k - 3), k + 3)
-    @test_throws ArgumentError UnfoldPenalizedSplines.default_knots(zeros(7), k)
+    # Match spl's full knot vector, including four copies of each endpoint.
+    @test knots ≈ [0, 0, 0, 0, 2, 5, 20, 20, 20, 20]
+    @test_throws ArgumentError UnfoldPenalizedSplines.default_knots([0, 0, 0, 1, 2], k)
 
     # The original basis sums to one at each point. Centering removes one column.
     @test size(spline.B_raw) == (length(x), k)

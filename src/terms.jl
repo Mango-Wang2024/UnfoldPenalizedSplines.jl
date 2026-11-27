@@ -10,7 +10,7 @@ end
     pspl(x, k)
     pspl(:x, k; knots=nothing)
 
-Cubic B-spline with an integrated squared-second-derivative penalty.
+Cubic B-spline with quantile breakpoints and an integrated squared-second-derivative penalty.
 Use `pspl(x, k)` inside `@formula`. The symbol form supports supplied full knots
 when constructing a formula programmatically.
 """

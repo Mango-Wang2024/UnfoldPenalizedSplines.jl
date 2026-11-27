@@ -12,8 +12,7 @@ Use the same spline basis to fit the simulated EEG with and without a smoothing 
 using Pkg
 Pkg.activate(mktempdir())
 Pkg.add([
-    Pkg.PackageSpec(url="https://github.com/Mango-Wang2024/Unfold.jl",
-                    rev="55a451d6e44257c70d99e694db6205499535b3cc"),
+    Pkg.PackageSpec(url="https://github.com/Mango-Wang2024/Unfold.jl.git"),
     Pkg.PackageSpec(url="https://github.com/unfoldtoolbox/UnfoldSim.jl",
                     rev="994f253c2fa0d918357c94180b206732e0b7b2ae"),
     Pkg.PackageSpec(url="https://github.com/Mango-Wang2024/UnfoldPenalizedSplines.jl"),
@@ -68,7 +67,7 @@ first(evts, 5)
 
 ## Fit the spline models
 
-Fit both models over the same window, from −100 to +500 ms relative to each event. Both calls use the Unfold fork pinned above. For the unpenalized fit, the solver takes the design matrix `X.X` from the adapter and uses ordinary least squares. The penalized fit passes the adapter through to the REML solver.
+Fit both models over the same window, from −100 to +500 ms relative to each event. Both calls use the Unfold fork installed above. For the unpenalized fit, the solver takes the design matrix `X.X` from the adapter and uses ordinary least squares. The penalized fit passes the adapter through to the REML solver. Both fits use quantile breakpoints, as in Unfold’s `spl`.
 
 ```julia
 formula = @formula(0 ~ 1 + pspl(x1, 8) + pspl(x2, 8))

@@ -47,7 +47,7 @@ The numerical code is reused from [Penalized-Splines](https://github.com/Mango-W
 3. **Fit:** `modelmatrix(model)` wraps the assembled matrix in a `REMLAdapter` that identifies $X_f,Z_1,\ldots,Z_m$. `Unfold.fit` dispatches to the REML solver for that adapter.
 4. **Return:** coefficients are stored in Unfold's column order for native `predict` and `coeftable`. `smoothing_parameters` returns each fitted $\lambda_j=\sigma^2/r_j^2$ and its variance estimates.
 
-By default, `pspl` uses the original uniformly spaced knots, with a small expansion of the training range. Training knots, centering and coefficient transformations are retained for new-data prediction. The number of predictors is determined by the formula. Supplied full knot vectors can be used with `pspl(:x, k; knots=...)` in programmatically constructed formulas.
+By default, `pspl` uses the same knot convention as Unfold’s `spl`: quantile breakpoints with repeated endpoints. Training knots, centering and coefficient transformations are retained for new-data prediction. The number of predictors is determined by the formula. Supplied full knot vectors can be used with `pspl(:x, k; knots=...)` in programmatically constructed formulas.
 
 Channels and epoched time points are fitted separately. In continuous models, each spline term has one shared smoothing strength across its time-expanded columns. This applies the predictor-spline penalty; regularization along the TRF time axis is a separate modelling step.
 
@@ -70,7 +70,7 @@ smoothing_parameters(model)
 
 As in ordinary Unfold formulas, `0` on the left is a placeholder; the responses are supplied in `data`.
 
-The bundled example prints its grid RMSE and smoothing estimates. [Archived results and output data](results/two_predictors/RESULTS.md) record a reference fit with uniformly spaced knots, which gave a grid RMSE of **0.0794** and matched the research project's R reference to within **3.8 × 10⁻⁷** across five saved cases.
+The bundled example prints its grid RMSE and smoothing estimates. [Archived results and output data](results/two_predictors/RESULTS.md) record an earlier fit with uniformly spaced knots, which gave a grid RMSE of **0.0794** and matched the research project's R reference to within **3.8 × 10⁻⁷** across five saved cases.
 
 ## Marginal effects over time
 
@@ -78,6 +78,6 @@ The [EEG tutorial](https://mango-wang2024.github.io/UnfoldDocs/UnfoldPenalizedSp
 
 ## Dependencies and sources
 
-The fitter uses BSplineKit 0.19.3 and MixedModels 5.9.0. The project pins [Unfold fork commit `55a451d`](https://github.com/Mango-Wang2024/Unfold.jl/commit/55a451d6e44257c70d99e694db6205499535b3cc) for the adapter dispatch. R supplies the saved reference comparisons.
+The fitter uses BSplineKit 0.19.3 and MixedModels 5.9.0. The project uses the [Unfold fork’s default branch](https://github.com/Mango-Wang2024/Unfold.jl) for adapter dispatch. R supplies the saved reference comparisons.
 
 Sources: [StatsModels formula extensions](https://juliastats.org/StatsModels.jl/stable/internals/#Extending-@formula-syntax), [Unfold spline terms](https://github.com/unfoldtoolbox/Unfold.jl/blob/ce1c795faf5968dc623e015fb25af03954e61047/ext/UnfoldBSplineKitExt/splinepredictors.jl), [Unfold custom solver interface](https://github.com/unfoldtoolbox/Unfold.jl/blob/ce1c795faf5968dc623e015fb25af03954e61047/src/fit.jl), and [mgcv smooth-to-random preparation](https://stat.ethz.ch/R-manual/R-devel/library/mgcv/html/smooth2random.html).

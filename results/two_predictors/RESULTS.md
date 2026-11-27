@@ -1,6 +1,6 @@
 # Two-predictor integration results
 
-These archived results and the current [example](../../examples/two_predictors.jl) use uniformly spaced knots.
+These archived results used uniformly spaced knots. The current [example](../../examples/two_predictors.jl) uses quantile breakpoints with repeated endpoints.
 
 - Observations used for fitting: **200**.
 - Prediction grid points: **961**.
